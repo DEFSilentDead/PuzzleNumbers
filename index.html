@@ -1824,6 +1824,7 @@ syncThemeLabel();
    (n8n lo actualiza cada hora). En el archivo local o en claude.ai usa los datos incluidos. */
 const SITIO = "https://defsilentdead.github.io/PuzzleNumbers/";
 const DATA_FILE = "historico-loteria.json.gz";
+let DATA_URL = DATA_FILE; // en GitHub Pages, ruta relativa; en el archivo local, la del sitio
 const SRC = { state: "embebido", at: null, detail: "" };
 EMBED_UPDATED = loadHist().updated;
 
@@ -1895,7 +1896,7 @@ async function loadWeb() {
   SRC.state = "web-cargando"; renderSrc();
   try {
     // El parámetro evita que el navegador use una copia vieja del archivo
-    const r = await fetch(`${DATA_FILE}?t=${Math.floor(Date.now() / 300000)}`, { cache: "no-cache" });
+    const r = await fetch(`${DATA_URL}?t=${Math.floor(Date.now() / 300000)}`, { cache: "no-cache" });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const bytes = new Uint8Array(await r.arrayBuffer());
     const txt = bytes[0] === 0x1f && bytes[1] === 0x8b ? await gunzipText(bytes) : new TextDecoder("utf-8").decode(bytes);
@@ -1912,7 +1913,10 @@ $("src-status").addEventListener("click", (e) => { if (e.target.id === "src-retr
 function initSource() {
   const enClaude = !!(window.claude && typeof window.claude.use === "function") || /claude/.test(location.hostname);
   const enWeb = /^https?:$/.test(location.protocol) && !enClaude;
-  if (!enWeb) { SRC.state = "embebido"; renderSrc(); return; }
+  const enArchivo = location.protocol === "file:";
+  if (!enWeb && !enArchivo) { SRC.state = "embebido"; renderSrc(); return; }
+  // Abierta desde el disco: descarga del sitio publicado (GitHub Pages permite CORS); si no hay internet, usa los datos incluidos
+  if (enArchivo) DATA_URL = SITIO + DATA_FILE;
   loadWeb();
   // Mientras la página siga abierta, busca resultados nuevos cada 30 minutos
   setInterval(() => { if (document.visibilityState === "visible") loadWeb(); else if (SRC.state === "web") renderSrc(); }, 30 * 60 * 1000);
