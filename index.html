@@ -2235,7 +2235,7 @@ async function ptCargar() {
   PT.ocupado = true; PT.estado = "cargando"; ptRender();
   try {
     const j = await ptApi("lista");
-    PT.filas = j.filas || []; PT.estado = "ok"; PT.at = Date.now(); PT.cargado = true;
+    PT.filas = (j.filas || []).map(ptNormalizar); PT.estado = "ok"; PT.at = Date.now(); PT.cargado = true;
   } catch (e) {
     PT.estado = e.code === "clave" ? "clave-mala" : e.code === "sin-clave" ? "sin-clave-servidor" : "error";
     PT.detalle = e.message;
@@ -2249,6 +2249,19 @@ function ptEntrar() {
   if (!PT.clave) { PT.estado = "sin-clave"; return ptRender(); }
   if (!PT.cargado) return ptCargar();
   ptRender();
+}
+
+/* Google Sheets a veces convierte la fecha y una versión anterior del script la devuelve como «Thu Nov 19».
+   Aquí se reconstruye como AAAA-MM-DD (el año sale de la fecha de registro). */
+function ptNormalizar(p) {
+  const f = String(p.fecha || "");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(f)) return p;
+  const creado = String(p.creado || "");
+  const anio = /^\d{4}/.test(creado) ? creado.slice(0, 4) : String(new Date().getFullYear());
+  let d = f.trim() ? new Date(/\d{4}/.test(f) ? f : `${f} ${anio}`) : new Date(NaN);
+  if (isNaN(d)) d = new Date(creado);
+  const iso = isNaN(d) ? "" : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return { ...p, fecha: iso || f };
 }
 
 /* Aciertos contra el histórico */
@@ -2463,7 +2476,7 @@ $("pt-form").addEventListener("submit", async (e) => {
   ptFormMsg("");
   try {
     const j = await ptApi("agregar", { registro });
-    PT.filas.push(j.fila);
+    PT.filas.push(ptNormalizar(j.fila));
     $("pt-form-panel").hidden = true;
     PT.estado = "ok"; PT.at = Date.now();
   } catch (err) {
@@ -2507,7 +2520,7 @@ $("view-participaciones").addEventListener("submit", async (e) => {
   const id = f.dataset.premioForm, premio = Number(f.querySelector("input").value);
   if (!(premio >= 0)) return;
   f.querySelectorAll("button").forEach((x) => (x.disabled = true));
-  try { const j = await ptApi("premio", { id, premio }); PT.filas = PT.filas.map((p) => (p.id === id ? j.fila : p)); PT.premioEdit = null; }
+  try { const j = await ptApi("premio", { id, premio }); PT.filas = PT.filas.map((p) => (p.id === id ? ptNormalizar(j.fila) : p)); PT.premioEdit = null; }
   catch (err) { PT.estado = "error"; PT.detalle = err.message; }
   ptRender();
 });
