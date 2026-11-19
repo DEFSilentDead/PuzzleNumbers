@@ -292,6 +292,41 @@ tr.top td { font-weight: 700; }
 .search { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
 .hits { font-weight: 700; color: var(--mark); }
 
+/* Participaciones */
+.cards4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.hcard .v.pos { color: var(--accent); }
+.hcard .v.neg { color: var(--mark); }
+.pt-key { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.pt-key input { width: min(320px, 100%); }
+#pt-form { display: flex; flex-direction: column; gap: 14px; }
+.pt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.pt-extra { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.chk { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer; }
+.chk input { width: 16px; height: 16px; accent-color: var(--accent); }
+.pt-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 30px; }
+.pt-jugadores { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.pt-jug { display: grid; grid-template-columns: minmax(0, 2fr) minmax(90px, 1fr) 34px; gap: 8px; }
+.pt-jug-acc { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 6px; }
+.pt-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.res-pill { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--sunk); color: var(--ink); margin: 2px 4px 2px 0; white-space: nowrap; }
+.res-pill.pend { color: var(--muted); }
+.res-pill.prem { background: var(--mark-soft); color: var(--mark); }
+.who { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--ink); margin: 2px 4px 2px 0; white-space: nowrap; }
+.pt-row-acc { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: nowrap; }
+.pt-premio-edit { display: flex; gap: 6px; align-items: center; }
+.pt-premio-edit input { width: 100px; padding: 5px 8px; }
+.pt-table td { white-space: normal; vertical-align: top; padding-top: 12px; padding-bottom: 12px; }
+.pt-table td.pt-jugada { min-width: 220px; }
+.pt-tit { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-bottom: 6px; }
+.pt-nota { display: block; margin-top: 6px; max-width: 34ch; }
+.pt-dinero { min-width: 170px; }
+.pt-premio { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.pt-premio-edit { justify-content: flex-end; }
+.ball.ok { background: var(--mark); color: var(--on-mark); }
+.reg-btn { margin-left: auto; width: 26px; height: 26px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--card-solid); color: var(--accent); font-weight: 800; cursor: pointer; padding: 0; line-height: 1; }
+.combo .seen + .reg-btn { margin-left: 6px; }
+.reg-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+
 /* Guía */
 .guide-toc { display: flex; flex-wrap: wrap; gap: 8px; }
 .guide-toc button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); cursor: pointer; }
@@ -440,7 +475,12 @@ a.link:hover { text-decoration: underline; }
   th, td { padding-right: 8px; }
   .pager .info { order: -1; flex-basis: 100%; }
   .nav a span { display: none; }
-  .brand-txt b { font-size: 15px; }
+  .brand-txt { display: none; }
+  .nav { gap: 2px; }
+  .nav a { padding: 8px; }
+  .cards4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .cards4 .hcard { padding: 14px; }
+  .cards4 .hcard .v { font-size: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -469,6 +509,10 @@ a.link:hover { text-decoration: underline; }
       <a href="#reglas" data-view="reglas" title="Reglas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/><path d="M9 7h7M9 11h5"/></svg>
         <span>Reglas</span>
+      </a>
+      <a href="#participaciones" data-view="participaciones" title="Participaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M9 6v12" stroke-dasharray="2 2"/><path d="M13 10h4M13 14h3"/></svg>
+        <span>Participaciones</span>
       </a>
       <a href="#guia" data-view="guia" title="Guía de uso">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><path d="M12 17.6h.01"/></svg>
@@ -792,6 +836,82 @@ a.link:hover { text-decoration: underline; }
       <p class="note">Resumen hecho con las páginas oficiales de cada juego. Si algo no coincide, manda la información vigente de Lotería Nacional.</p>
     </section>
 
+    <!-- ========== Participaciones ========== -->
+    <section class="view" id="view-participaciones" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Participaciones</h1>
+          <p>Registro compartido de las jugadas del equipo: quién puso cuánto, qué se jugó y qué se ganó. Los aciertos se revisan solos contra el histórico.</p>
+        </div>
+        <button class="btn primary" type="button" id="pt-nueva">＋ Registrar participación</button>
+      </div>
+
+      <div class="src-bar" id="pt-status" role="status"></div>
+      <form class="pt-key" id="pt-key" hidden>
+        <label for="pt-clave" class="lbl-sm">Clave del equipo</label>
+        <input id="pt-clave" type="password" autocomplete="current-password" placeholder="Pídela a quien administra la hoja">
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+
+      <div class="cards4" id="pt-resumen" hidden>
+        <div class="hcard"><span class="k">Gastado</span><span class="v" id="pt-gastado">—</span><span class="s" id="pt-gastado-s"></span></div>
+        <div class="hcard"><span class="k">Ganado</span><span class="v" id="pt-ganado">—</span><span class="s" id="pt-ganado-s"></span></div>
+        <div class="hcard"><span class="k">Balance</span><span class="v" id="pt-balance">—</span><span class="s" id="pt-balance-s"></span></div>
+        <div class="hcard"><span class="k">Jugadas</span><span class="v" id="pt-jugadas">—</span><span class="s" id="pt-jugadas-s"></span></div>
+      </div>
+
+      <section class="panel" id="pt-form-panel" hidden aria-label="Registrar participación">
+        <h2 class="sec-title" style="margin:0">Registrar participación</h2>
+        <form id="pt-form" novalidate>
+          <div class="pt-grid">
+            <div class="field"><label for="pt-sorteo">Sorteo</label>
+              <select id="pt-sorteo"><option value="melate">Melate</option><option value="chispazo">Chispazo</option><option value="tris">Tris</option></select>
+            </div>
+            <div class="field"><label for="pt-concurso">Concurso</label><input id="pt-concurso" type="number" inputmode="numeric" min="1"></div>
+            <div class="field"><label for="pt-fecha">Fecha del sorteo</label><input id="pt-fecha" type="date"></div>
+            <div class="field"><label for="pt-costo">Costo total (MXN)</label><input id="pt-costo" type="number" inputmode="decimal" min="0" step="0.5"></div>
+          </div>
+          <div class="pt-extra" id="pt-extra">
+            <label class="chk"><input type="checkbox" id="pt-rev"> También Revancha</label>
+            <label class="chk"><input type="checkbox" id="pt-revt"> También Revanchita</label>
+          </div>
+          <div class="field"><label for="pt-numeros" id="pt-numeros-lbl">Números jugados</label><input id="pt-numeros" type="text" placeholder="Ej. 2, 16, 21, 43, 44, 49"></div>
+          <div class="pt-preview"><div class="balls" id="pt-preview"></div><span class="hint" id="pt-numeros-msg"></span></div>
+          <div class="field">
+            <span class="lbl-sm">Quién jugó y cuánto puso</span>
+            <div id="pt-jugadores" class="pt-jugadores"></div>
+            <datalist id="pt-nombres"></datalist>
+            <div class="pt-jug-acc"><button class="btn sm" type="button" id="pt-add-jug">＋ Agregar persona</button><span class="hint" id="pt-suma"></span></div>
+          </div>
+          <div class="field"><label for="pt-notas">Notas (opcional)</label><input id="pt-notas" type="text" maxlength="300" placeholder="Ej. coperacha de la oficina, boleto en la cartera de Ana"></div>
+          <p class="msg" id="pt-form-msg" hidden></p>
+          <div class="pt-actions">
+            <button class="btn" type="button" id="pt-cancelar">Cancelar</button>
+            <button class="btn primary" type="submit" id="pt-guardar">Guardar participación</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" id="pt-lista-panel" hidden aria-label="Jugadas registradas">
+        <div class="list-head">
+          <h2 class="sec-title" style="margin:0">Jugadas <span class="aux" id="pt-lista-aux"></span></h2>
+          <div class="jump">
+            <label for="pt-f-sorteo" class="lbl-sm">Sorteo</label>
+            <select id="pt-f-sorteo" style="width:auto"><option value="">Todos</option><option value="melate">Melate</option><option value="chispazo">Chispazo</option><option value="tris">Tris</option></select>
+            <label for="pt-f-persona" class="lbl-sm">Persona</label>
+            <select id="pt-f-persona" style="width:auto"><option value="">Todas</option></select>
+          </div>
+        </div>
+        <div class="tbl-wrap" id="pt-lista"></div>
+        <p class="hint">«Posible premio» indica aciertos que suelen pagar; confirma montos y reglas en Lotería Nacional antes de cobrar.</p>
+      </section>
+
+      <section class="panel" id="pt-personas-panel" hidden aria-label="Resumen por persona">
+        <h2 class="sec-title" style="margin:0">Por persona <span class="aux">premios repartidos en proporción a lo que puso cada quien en cada jugada</span></h2>
+        <div class="tbl-wrap" id="pt-personas"></div>
+      </section>
+    </section>
+
     <!-- ========== Guía ========== -->
     <section class="view" id="view-guia" hidden>
       <div class="page-head">
@@ -807,6 +927,7 @@ a.link:hover { text-decoration: underline; }
         <button type="button" data-goto="g-numeros">Tus números</button>
         <button type="button" data-goto="g-resultados">Resultados y listado</button>
         <button type="button" data-goto="g-historico">Histórico</button>
+        <button type="button" data-goto="g-participaciones">Participaciones</button>
         <button type="button" data-goto="g-ajustes">Menú y tema</button>
         <button type="button" data-goto="g-faq">Preguntas frecuentes</button>
       </nav>
@@ -928,6 +1049,24 @@ a.link:hover { text-decoration: underline; }
           <li><b>Combinaciones repetidas:</b> combinaciones ganadoras que salieron más de una vez, comparadas con lo que se espera por puro azar.</li>
         </ul>
         <p>En <span class="ui">Reglas</span> hay un resumen de cómo funciona cada sorteo y enlaces a las páginas oficiales.</p>
+      </section>
+
+      <section class="panel gsec" id="g-participaciones">
+        <h2>Participaciones del equipo</h2>
+        <p>Una lista compartida de las jugadas que hacemos. Lo que registra cualquiera lo ve todo el equipo, y queda guardado en una hoja de Google.</p>
+        <ol class="steps">
+          <li><b>Entra con la clave del equipo</b> la primera vez que abras <span class="ui">Participaciones</span>. Se guarda solo en tu navegador; con <span class="ui">Cambiar clave</span> la quitas.</li>
+          <li><b>Registra la jugada</b> con <span class="ui">＋ Registrar participación</span>: sorteo, concurso, fecha, números, costo y quién puso cuánto. En Melate marca si también jugaron Revancha o Revanchita.</li>
+          <li><b>O regístrala desde la calculadora:</b> en el listado, el botón <span class="ui">＋</span> junto a cada combinación abre el formulario con el sorteo y los números ya llenos.</li>
+          <li><b>Espera el sorteo:</b> la jugada dice «pendiente» hasta que el resultado llega al histórico. Luego muestra los aciertos solos y pinta en naranja los números que atinaron.</li>
+          <li><b>Si ganaron,</b> pulsa <span class="ui">Registrar premio</span> y escribe lo que se cobró.</li>
+        </ol>
+        <ul class="tips">
+          <li>«Posible premio» aparece cuando los aciertos suelen pagar (por ejemplo, 3 o más en Melate). Confirma siempre en Lotería Nacional.</li>
+          <li><b>Por persona</b> suma lo que puso cada quien y le reparte los premios en proporción a lo que aportó en cada jugada.</li>
+          <li>El concurso se propone solo: el siguiente al último del histórico. Revísalo en tu boleto.</li>
+          <li>Para corregir una jugada, bórrala y vuelve a registrarla.</li>
+        </ul>
       </section>
 
       <section class="panel gsec" id="g-ajustes">
@@ -1484,7 +1623,8 @@ function renderList() {
       const last = hit.e[0];
       seen = `<span class="seen" title="${hit.e.map((r) => GAMES[hit.g].name + " #" + r[0] + " (" + fdate(r[1]) + ")").join(", ")}">Salió · ${GAMES[hit.g].name} #${last[0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>`;
     }
-    h += `<div class="combo"><span class="idx">#${(i + 1n).toLocaleString("es-MX")}</span><span class="balls">${balls}</span>${seen}</div>`;
+    const reg = sg.length ? `<button type="button" class="reg-btn" data-reg="${values.join(",")}" title="Registrar esta jugada en Participaciones" aria-label="Registrar esta jugada">＋</button>` : "";
+    h += `<div class="combo"><span class="idx">#${(i + 1n).toLocaleString("es-MX")}</span><span class="balls">${balls}</span>${seen}${reg}</div>`;
     i++;
   }
   list.innerHTML = h;
@@ -2041,12 +2181,14 @@ $("h-next").addEventListener("click", () => { H.page++; renderHistTable(); });
 /* ---------- Menú ---------- */
 let histReady = false;
 function route() {
-  const vistas = { "#historico": "historico", "#reglas": "reglas", "#guia": "guia" };
+  const vistas = { "#historico": "historico", "#reglas": "reglas", "#participaciones": "participaciones", "#guia": "guia" };
   const v = vistas[location.hash] || "calculadora";
   $("view-calculadora").hidden = v !== "calculadora";
   $("view-historico").hidden = v !== "historico";
   $("view-reglas").hidden = v !== "reglas";
   $("view-guia").hidden = v !== "guia";
+  $("view-participaciones").hidden = v !== "participaciones";
+  if (v === "participaciones") ptEntrar();
   if (v === "reglas") renderRules();
   document.querySelectorAll(".nav a").forEach((a) => (a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (v === "historico") { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
@@ -2054,6 +2196,333 @@ function route() {
   if (v !== "historico" && !$("filtros").hidden) closeFilters();
 }
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+
+/* ---------- Participaciones (hoja de Google del equipo) ---------- */
+// URL de la aplicación web de Apps Script (participaciones/Code.gs). Por sí sola no da acceso: se necesita la clave del equipo.
+const PART_URL = "https://script.google.com/macros/s/AKfycbzE66_Qx7jT8dtxIMp7-UC6-Mq--LA1Pu3w6qpqMWaPjfR4Lc76GcGz0LH1JBfNvBn3/exec";
+const PT_JUEGO = {
+  melate:   { k: 6, min: 1, max: 56, orden: false, precio: 15 },
+  chispazo: { k: 5, min: 1, max: 28, orden: false, precio: 10 },
+  tris:     { k: 5, min: 0, max: 9,  orden: true,  precio: 1 },
+};
+const PT = { url: PART_URL, clave: "", filas: [], estado: "inicio", detalle: "", at: null, cargado: false, ocupado: false, borrando: null, premioEdit: null };
+try {
+  PT.clave = localStorage.getItem("claveEquipo") || "";
+  const dev = localStorage.getItem("participacionesUrl"); // solo para pruebas locales
+  if (dev) PT.url = dev;
+} catch (e) {}
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ptMoney = (n) => "$" + (Math.round((Number(n) || 0) * 100) / 100).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const ptConfigurada = () => PT.url && !PT.url.startsWith("PEGA_AQUI");
+const ptEnClaude = () => !!(window.claude && typeof window.claude.use === "function") || /claude/.test(location.hostname);
+
+async function ptApi(accion, extra = {}) {
+  const r = await fetch(PT.url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita la petición previa de CORS
+    body: JSON.stringify({ accion, clave: PT.clave, ...extra }),
+    redirect: "follow",
+  });
+  if (!r.ok) throw Object.assign(new Error(`HTTP ${r.status}`), { code: "http" });
+  let j;
+  try { j = await r.json(); } catch (e) { throw Object.assign(new Error("respuesta inesperada del servidor"), { code: "formato" }); }
+  if (!j.ok) throw Object.assign(new Error(j.mensaje || j.error || "error"), { code: j.error });
+  return j;
+}
+
+async function ptCargar() {
+  if (PT.ocupado) return;
+  PT.ocupado = true; PT.estado = "cargando"; ptRender();
+  try {
+    const j = await ptApi("lista");
+    PT.filas = j.filas || []; PT.estado = "ok"; PT.at = Date.now(); PT.cargado = true;
+  } catch (e) {
+    PT.estado = e.code === "clave" ? "clave-mala" : e.code === "sin-clave" ? "sin-clave-servidor" : "error";
+    PT.detalle = e.message;
+  }
+  PT.ocupado = false;
+  ptRender();
+}
+function ptEntrar() {
+  if (ptEnClaude()) { PT.estado = "en-claude"; return ptRender(); }
+  if (!ptConfigurada()) { PT.estado = "sin-url"; return ptRender(); }
+  if (!PT.clave) { PT.estado = "sin-clave"; return ptRender(); }
+  if (!PT.cargado) return ptCargar();
+  ptRender();
+}
+
+/* Aciertos contra el histórico */
+function ptEvaluar(p) {
+  const out = [];
+  for (const g of p.juegos && p.juegos.length ? p.juegos : [p.sorteo]) {
+    if (!GAMES[g]) continue;
+    const row = rowsOf(g).find((r) => r[0] === p.concurso);
+    if (!row) { out.push({ g, pend: true, texto: `${GAMES[g].name}: pendiente` }); continue; }
+    const draw = numsOf(row, g);
+    if (GAMES[g].digits) {
+      const pos = p.numeros.map((v, i) => draw[i] === v);
+      const enLugar = pos.filter(Boolean).length;
+      let ult = 0;
+      for (let i = p.numeros.length - 1; i >= 0 && pos[i]; i--) ult++;
+      const texto = enLugar === p.numeros.length ? "Directo 5" : ult >= 2 ? `Últimos ${ult} en orden` : `${enLugar} en su lugar`;
+      out.push({ g, pos, texto: `Tris: ${texto}`, prem: ult >= 1 });
+    } else {
+      const set = new Set(draw);
+      const hits = p.numeros.filter((v) => set.has(v));
+      const a = adicOf(row, g);
+      const conAdic = a != null && p.numeros.includes(a);
+      const n = hits.length;
+      const prem = g === "chispazo" ? n >= 2 : g === "melate" ? n >= 3 || (n === 2 && conAdic) : n >= 6;
+      out.push({ g, hits: new Set(hits), adic: conAdic ? a : null, texto: `${GAMES[g].name}: ${n} acierto${n === 1 ? "" : "s"}${conAdic ? " + adicional" : ""}`, prem });
+    }
+  }
+  return out;
+}
+
+function ptPersonas(filas) {
+  const m = new Map();
+  for (const p of filas) {
+    const js = p.jugadores || [];
+    const suma = js.reduce((s, j) => s + (Number(j.aporte) || 0), 0);
+    for (const j of js) {
+      const e = m.get(j.nombre) || { nombre: j.nombre, aporto: 0, jugadas: 0, premio: 0 };
+      e.aporto += Number(j.aporte) || 0;
+      e.jugadas++;
+      if (p.premio > 0) e.premio += suma > 0 ? (p.premio * (Number(j.aporte) || 0)) / suma : p.premio / js.length;
+      m.set(j.nombre, e);
+    }
+  }
+  return [...m.values()].sort((a, b) => b.aporto - a.aporto || a.nombre.localeCompare(b.nombre));
+}
+
+function ptRender() {
+  const st = $("pt-status");
+  const listo = PT.estado === "ok" || (PT.cargado && (PT.estado === "cargando" || PT.estado === "error"));
+  let cls = "", txt = "", btn = "";
+  switch (PT.estado) {
+    case "en-claude": cls = "warn"; txt = `Las participaciones del equipo se registran en la página pública: <a class="link" href="${SITIO}#participaciones" target="_blank" rel="noopener">${SITIO.replace(/^https:\/\//, "")}</a>.`; break;
+    case "sin-url": cls = "warn"; txt = "Esta sección aún no está conectada a la hoja del equipo. Quien administra la página debe seguir participaciones/LEEME.md."; break;
+    case "sin-clave": txt = "Escribe la clave del equipo para ver y registrar jugadas. Se guarda solo en este navegador."; break;
+    case "clave-mala": cls = "warn"; txt = "La clave no es correcta. Revísala con quien administra la hoja."; break;
+    case "sin-clave-servidor": cls = "warn"; txt = "La hoja todavía no tiene definida la clave del equipo (propiedad CLAVE del script)."; break;
+    case "cargando": txt = "Cargando participaciones…"; break;
+    case "error": cls = "warn"; txt = `No se pudo conectar con la hoja del equipo (${esc(PT.detalle)}).`; btn = `<button class="btn sm primary" type="button" data-pt="recargar">Reintentar</button>`; break;
+    case "ok": cls = "ok"; txt = `Conectado a la hoja del equipo · ${PT.filas.length} registro${PT.filas.length === 1 ? "" : "s"} · actualizado ${haceTexto(PT.at)}`; btn = `<button class="btn sm" type="button" data-pt="recargar">Actualizar</button><button class="btn sm" type="button" data-pt="salir">Cambiar clave</button>`; break;
+    default: txt = "";
+  }
+  st.className = "src-bar" + (cls ? " " + cls : "");
+  st.innerHTML = `<i class="src-dot" aria-hidden="true"></i><span>${txt}</span>${btn}`;
+  st.hidden = !txt;
+  $("pt-key").hidden = !["sin-clave", "clave-mala"].includes(PT.estado);
+  $("pt-nueva").hidden = !listo;
+  ["pt-resumen", "pt-lista-panel", "pt-personas-panel"].forEach((id) => ($(id).hidden = !listo));
+  if (!listo) { $("pt-form-panel").hidden = true; return; }
+  ptRenderDatos();
+}
+
+function ptRenderDatos() {
+  const todas = PT.filas;
+  const fs = $("pt-f-sorteo").value, fp = $("pt-f-persona").value;
+  // Resumen general
+  const gastado = todas.reduce((s, p) => s + (Number(p.costo) || 0), 0);
+  const ganado = todas.reduce((s, p) => s + (Number(p.premio) || 0), 0);
+  const evals = todas.map((p) => ({ p, ev: ptEvaluar(p) }));
+  const pendientes = evals.filter((x) => x.ev.some((e) => e.pend)).length;
+  const posibles = evals.filter((x) => x.ev.some((e) => e.prem) && !(x.p.premio > 0)).length;
+  $("pt-gastado").textContent = ptMoney(gastado);
+  $("pt-gastado-s").textContent = `en ${todas.length} jugada${todas.length === 1 ? "" : "s"}`;
+  $("pt-ganado").textContent = ptMoney(ganado);
+  $("pt-ganado-s").textContent = `${todas.filter((p) => p.premio > 0).length} con premio cobrado`;
+  const bal = ganado - gastado;
+  $("pt-balance").textContent = (bal < 0 ? "−" : "") + ptMoney(Math.abs(bal));
+  $("pt-balance").className = "v " + (bal >= 0 ? "pos" : "neg");
+  $("pt-balance-s").textContent = bal >= 0 ? "a favor" : "en contra";
+  $("pt-jugadas").textContent = todas.length.toLocaleString("es-MX");
+  $("pt-jugadas-s").textContent = `${pendientes} pendiente${pendientes === 1 ? "" : "s"} de sorteo` + (posibles ? ` · ${posibles} con posible premio sin registrar` : "");
+  // Personas (para el filtro y el autocompletado)
+  const personas = ptPersonas(todas);
+  const opts = `<option value="">Todas</option>` + personas.map((x) => `<option${x.nombre === fp ? " selected" : ""}>${esc(x.nombre)}</option>`).join("");
+  $("pt-f-persona").innerHTML = opts;
+  $("pt-nombres").innerHTML = personas.map((x) => `<option value="${esc(x.nombre)}"></option>`).join("");
+  // Lista
+  const filtradas = evals
+    .filter(({ p }) => (!fs || p.sorteo === fs) && (!fp || (p.jugadores || []).some((j) => j.nombre === fp)))
+    .sort((a, b) => String(b.p.fecha).localeCompare(String(a.p.fecha)) || String(b.p.creado).localeCompare(String(a.p.creado)));
+  $("pt-lista-aux").textContent = `${filtradas.length} de ${todas.length}`;
+  if (!filtradas.length) {
+    $("pt-lista").innerHTML = `<p class="hint">${todas.length ? "Ninguna jugada con esos filtros." : "Todavía no hay jugadas. Pulsa «Registrar participación» o usa el botón ＋ del listado de la calculadora."}</p>`;
+  } else {
+    let h = `<table class="pt-table"><thead><tr><th>Jugada</th><th>Resultado</th><th>Quién jugó</th><th class="r">Dinero</th></tr></thead><tbody>`;
+    for (const { p, ev } of filtradas) {
+      const g = p.sorteo, base = ev.find((e) => !e.pend && e.g === (p.juegos || [g])[0]) || ev.find((e) => !e.pend);
+      const balls = p.numeros.map((v, i) => {
+        const okHit = base && (base.pos ? base.pos[i] : base.hits && base.hits.has(v));
+        return `<span class="ball${okHit ? " ok" : ""}">${hpad(v, g === "tris" ? "tris" : g)}</span>`;
+      }).join("");
+      const res = ev.map((e) => `<span class="res-pill${e.pend ? " pend" : e.prem ? " prem" : ""}"${e.prem ? ' title="Posible premio: confirma en Lotería Nacional"' : ""}>${esc(e.texto)}${e.prem ? " · posible premio" : ""}</span>`).join("");
+      const quien = (p.jugadores || []).map((j) => `<span class="who">${esc(j.nombre)} ${ptMoney(j.aporte)}</span>`).join("") || `<span class="hint">—</span>`;
+      const fechaTxt = /^\d{4}-\d{2}-\d{2}$/.test(p.fecha) ? fdate(Number(p.fecha.replace(/-/g, ""))) : esc(p.fecha);
+      let premio;
+      if (PT.premioEdit === p.id) premio = `<form class="pt-premio-edit" data-premio-form="${esc(p.id)}"><input type="number" min="0" step="0.5" value="${p.premio || ""}" aria-label="Premio cobrado" required><button class="btn sm primary" type="submit">Guardar</button><button class="btn sm" type="button" data-pt="premio-cancelar">×</button></form>`;
+      else premio = `${p.premio > 0 ? `<b>${ptMoney(p.premio)}</b> ` : ""}<button class="btn sm" type="button" data-pt="premio" data-id="${esc(p.id)}">${p.premio > 0 ? "Editar" : "Registrar premio"}</button>`;
+      const borrar = PT.borrando === p.id
+        ? `<span class="hint">¿Borrar?</span><button class="btn sm primary" type="button" data-pt="borrar-si" data-id="${esc(p.id)}">Sí</button><button class="btn sm" type="button" data-pt="borrar-no">No</button>`
+        : `<button class="btn sm" type="button" data-pt="borrar" data-id="${esc(p.id)}" aria-label="Borrar esta jugada">Borrar</button>`;
+      const extra = (p.juegos || []).length > 1 ? ` + ${p.juegos.slice(1).map((x) => GAMES[x].name).join(" y ")}` : "";
+      h += `<tr>
+        <td class="pt-jugada"><div class="pt-tit"><b>${esc(GAMES[g] ? GAMES[g].name : g)} #${p.concurso}</b><span class="hint">${fechaTxt}${extra}</span></div><div class="balls">${balls}</div>${p.notas ? `<span class="hint pt-nota">${esc(p.notas)}</span>` : ""}</td>
+        <td>${res}</td>
+        <td>${quien}</td>
+        <td class="r pt-dinero"><span class="hint">Costo</span> <b class="num-c">${ptMoney(p.costo)}</b><div class="pt-premio">${premio}</div><div class="pt-row-acc">${borrar}</div></td>
+      </tr>`;
+    }
+    $("pt-lista").innerHTML = h + `</tbody></table>`;
+  }
+  // Por persona
+  if (!personas.length) $("pt-personas").innerHTML = `<p class="hint">Aquí aparecerá cuánto ha puesto y ganado cada persona.</p>`;
+  else $("pt-personas").innerHTML = `<table><thead><tr><th>Persona</th><th class="r">Jugadas</th><th class="r">Puso</th><th class="r">Le toca de premios</th><th class="r">Balance</th></tr></thead><tbody>` +
+    personas.map((x) => { const b = x.premio - x.aporto; return `<tr><td><b>${esc(x.nombre)}</b></td><td class="r num-c">${x.jugadas}</td><td class="r num-c">${ptMoney(x.aporto)}</td><td class="r num-c">${ptMoney(x.premio)}</td><td class="r num-c" style="color:${b >= 0 ? "var(--accent)" : "var(--mark)"}">${b < 0 ? "−" : ""}${ptMoney(Math.abs(b))}</td></tr>`; }).join("") + `</tbody></table>`;
+}
+
+/* Formulario */
+function ptJugadorFila(nombre = "", aporte = "") {
+  const d = document.createElement("div");
+  d.className = "pt-jug";
+  d.innerHTML = `<input type="text" list="pt-nombres" maxlength="40" placeholder="Nombre" aria-label="Nombre" value="${esc(nombre)}"><input type="number" min="0" step="0.5" placeholder="$ puso" aria-label="Aportación" value="${esc(aporte)}"><button class="btn sm" type="button" data-pt="quitar-jug" aria-label="Quitar persona">×</button>`;
+  $("pt-jugadores").appendChild(d);
+}
+function ptLeerNumeros() {
+  const g = $("pt-sorteo").value, J = PT_JUEGO[g];
+  const raw = $("pt-numeros").value;
+  const nums = J.orden ? (raw.match(/\d/g) || []).map(Number) : parseTyped(raw).nums;
+  let error = "";
+  if (nums.length !== J.k) error = `Escribe ${J.k} ${J.orden ? "dígitos" : "números"} (llevas ${nums.length}).`;
+  else if (nums.some((v) => v < J.min || v > J.max)) error = `Los números van del ${J.min} al ${J.max}.`;
+  else if (!J.orden && new Set(nums).size !== nums.length) error = "No se pueden repetir números.";
+  return { nums: J.orden ? nums : [...nums].sort((a, b) => a - b), error };
+}
+function ptActualizarForm() {
+  const g = $("pt-sorteo").value, J = PT_JUEGO[g];
+  $("pt-extra").hidden = g !== "melate";
+  $("pt-numeros-lbl").textContent = J.orden ? "Dígitos jugados, en orden" : "Números jugados";
+  $("pt-numeros").placeholder = J.orden ? "Ej. 9 0 3 1 8" : g === "melate" ? "Ej. 2, 16, 21, 43, 44, 49" : "Ej. 5, 9, 11, 23, 25";
+  const { nums, error } = ptLeerNumeros();
+  $("pt-preview").innerHTML = nums.map((v) => `<span class="ball">${hpad(v, g === "tris" ? "tris" : g)}</span>`).join("");
+  $("pt-numeros-msg").textContent = $("pt-numeros").value.trim() ? error || "Listo." : "";
+  const suma = [...$("pt-jugadores").querySelectorAll(".pt-jug")].reduce((s, d) => s + (Number(d.children[1].value) || 0), 0);
+  $("pt-suma").textContent = suma ? `Suman ${ptMoney(suma)}` : "";
+}
+function ptAbrirForm({ sorteo = "melate", numeros = [] } = {}) {
+  const f = $("pt-form");
+  f.reset();
+  $("pt-sorteo").value = sorteo;
+  const last = (rowsOf(sorteo)[0] || [0])[0];
+  $("pt-concurso").value = last ? last + 1 : "";
+  const hoy = new Date();
+  $("pt-fecha").value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+  $("pt-costo").value = PT_JUEGO[sorteo].precio;
+  $("pt-numeros").value = sorteo === "tris" ? numeros.join(" ") : numeros.join(", ");
+  $("pt-jugadores").innerHTML = "";
+  ptJugadorFila();
+  $("pt-form-msg").hidden = true;
+  $("pt-form-panel").hidden = false;
+  ptActualizarForm();
+  $("pt-form-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function ptFormMsg(t) { $("pt-form-msg").textContent = t; $("pt-form-msg").hidden = !t; }
+
+$("pt-sorteo").addEventListener("change", () => {
+  const g = $("pt-sorteo").value, last = (rowsOf(g)[0] || [0])[0];
+  $("pt-concurso").value = last ? last + 1 : "";
+  $("pt-costo").value = PT_JUEGO[g].precio;
+  ptActualizarForm();
+});
+$("pt-form").addEventListener("input", ptActualizarForm);
+$("pt-add-jug").addEventListener("click", () => { ptJugadorFila(); ptActualizarForm(); });
+$("pt-cancelar").addEventListener("click", () => { $("pt-form-panel").hidden = true; });
+$("pt-nueva").addEventListener("click", () => ptAbrirForm());
+$("pt-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (PT.ocupado) return;
+  const g = $("pt-sorteo").value;
+  const { nums, error } = ptLeerNumeros();
+  if (error) return ptFormMsg(error);
+  const concurso = parseInt($("pt-concurso").value, 10);
+  if (!(concurso > 0)) return ptFormMsg("Escribe el número de concurso.");
+  if (!$("pt-fecha").value) return ptFormMsg("Escribe la fecha del sorteo.");
+  const costo = $("pt-costo").value === "" ? NaN : Number($("pt-costo").value);
+  if (!(costo >= 0)) return ptFormMsg("Escribe el costo total (puede ser 0).");
+  const jugadores = [...$("pt-jugadores").querySelectorAll(".pt-jug")]
+    .map((d) => ({ nombre: d.children[0].value.trim(), aporte: d.children[1].value === "" ? 0 : Number(d.children[1].value) }))
+    .filter((j) => j.nombre);
+  if (jugadores.some((j) => !(j.aporte >= 0))) return ptFormMsg("Las aportaciones deben ser números (pueden ser 0).");
+  const juegos = g === "melate" ? ["melate", ...($("pt-rev").checked ? ["revancha"] : []), ...($("pt-revt").checked ? ["revanchita"] : [])] : [g];
+  const registro = { sorteo: g, juegos, concurso, fecha: $("pt-fecha").value, numeros: nums, jugadores, costo, notas: $("pt-notas").value.trim() };
+  PT.ocupado = true;
+  $("pt-guardar").disabled = true; $("pt-guardar").textContent = "Guardando…";
+  ptFormMsg("");
+  try {
+    const j = await ptApi("agregar", { registro });
+    PT.filas.push(j.fila);
+    $("pt-form-panel").hidden = true;
+    PT.estado = "ok"; PT.at = Date.now();
+  } catch (err) {
+    if (err.code === "clave") { PT.estado = "clave-mala"; }
+    ptFormMsg(err.code === "validacion" ? err.message : `No se pudo guardar: ${err.message}. Revisa tu conexión e intenta de nuevo.`);
+  }
+  PT.ocupado = false;
+  $("pt-guardar").disabled = false; $("pt-guardar").textContent = "Guardar participación";
+  ptRender();
+});
+$("pt-key").addEventListener("submit", (e) => {
+  e.preventDefault();
+  PT.clave = $("pt-clave").value.trim();
+  if (!PT.clave) return;
+  try { localStorage.setItem("claveEquipo", PT.clave); } catch (err) {}
+  $("pt-clave").value = "";
+  PT.cargado = false;
+  ptCargar();
+});
+["pt-f-sorteo", "pt-f-persona"].forEach((id) => $(id).addEventListener("change", ptRenderDatos));
+$("view-participaciones").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-pt]"); if (!b) return;
+  const a = b.dataset.pt, id = b.dataset.id;
+  if (a === "recargar") return ptCargar();
+  if (a === "salir") { PT.clave = ""; PT.cargado = false; PT.filas = []; try { localStorage.removeItem("claveEquipo"); } catch (err) {} PT.estado = "sin-clave"; return ptRender(); }
+  if (a === "quitar-jug") { b.closest(".pt-jug").remove(); return ptActualizarForm(); }
+  if (a === "premio") { PT.premioEdit = id; PT.borrando = null; ptRenderDatos(); const inp = document.querySelector(`[data-premio-form] input`); if (inp) inp.focus(); return; }
+  if (a === "premio-cancelar") { PT.premioEdit = null; return ptRenderDatos(); }
+  if (a === "borrar") { PT.borrando = id; PT.premioEdit = null; return ptRenderDatos(); }
+  if (a === "borrar-no") { PT.borrando = null; return ptRenderDatos(); }
+  if (a === "borrar-si") {
+    b.disabled = true;
+    try { await ptApi("borrar", { id }); PT.filas = PT.filas.filter((p) => p.id !== id); PT.borrando = null; }
+    catch (err) { if (err.code === "no-existe") PT.filas = PT.filas.filter((p) => p.id !== id); else { PT.estado = "error"; PT.detalle = err.message; } }
+    return ptRender();
+  }
+});
+$("view-participaciones").addEventListener("submit", async (e) => {
+  const f = e.target.closest("[data-premio-form]"); if (!f) return;
+  e.preventDefault();
+  const id = f.dataset.premioForm, premio = Number(f.querySelector("input").value);
+  if (!(premio >= 0)) return;
+  f.querySelectorAll("button").forEach((x) => (x.disabled = true));
+  try { const j = await ptApi("premio", { id, premio }); PT.filas = PT.filas.map((p) => (p.id === id ? j.fila : p)); PT.premioEdit = null; }
+  catch (err) { PT.estado = "error"; PT.detalle = err.message; }
+  ptRender();
+});
+// Botón ＋ del listado de la calculadora
+$("list").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-reg]"); if (!b) return;
+  const sg = seenGames(); if (!sg.length) return;
+  const numeros = b.dataset.reg.split(",").map(Number);
+  location.hash = "#participaciones";
+  setTimeout(() => { if (!$("pt-nueva").hidden) ptAbrirForm({ sorteo: sg[0], numeros }); else PT.pendiente = { sorteo: sg[0], numeros }; }, 60);
+});
+// Si la persona tenía que escribir la clave primero, abre el formulario con la jugada al terminar de cargar
+const _ptRenderOrig = ptRender;
+ptRender = function () { _ptRenderOrig(); if (PT.pendiente && !$("pt-nueva").hidden) { const x = PT.pendiente; PT.pendiente = null; ptAbrirForm(x); } };
+setInterval(() => { if (PT.estado === "ok" && !$("view-participaciones").hidden && !PT.premioEdit && !PT.borrando) ptRender(); }, 60000);
 
 /* ---------- Guía: índice y ejemplos ---------- */
 $("view-guia").addEventListener("click", (e) => {
