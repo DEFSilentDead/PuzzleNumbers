@@ -1,0 +1,1930 @@
+<!doctype html>
+<html lang="es">
+<title>Combinaciones de Lotería</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: tablero pastel — menú lateral fijo + área principal con tarjetas blancas translúcidas; en celular el menú pasa a barra superior.
+   Paleta tomada de la portada de inspiración; el modo oscuro es su versión nocturna (ciruela profundo con los mismos acentos). */
+:root {
+  color-scheme: light;
+  --on-mark: #FFFFFF;
+  --theme-icon-moon: block;
+  --theme-icon-sun: none;
+  --bg: #FDEFF2;          /* rosa pálido del fondo */
+  --bg-peach: #FEF3F0;    /* esquina durazno */
+  --bg-lilac: #F7E6F7;    /* esquina lavanda */
+  --card: rgba(255, 255, 255, 0.80);
+  --card-solid: #FFFFFF;
+  --sunk: #F8F4F8;
+  --ink: #3B3852;         /* texto principal */
+  --head: #6E6A9B;        /* morado grisáceo del título */
+  --muted: #9693B4;       /* texto secundario */
+  --line: #F0E8F0;
+  --accent: #14B4E6;      /* azul del botón */
+  --accent-2: #6CC6F0;    /* azul claro de la tarjeta destacada */
+  --accent-ink: #FFFFFF;
+  --accent-soft: #DFF0F8; /* fondo del menú activo */
+  --mark: #E26F0A;        /* naranja (antes rosa) */
+  --mark-2: #F7B267;
+  --mark-soft: #FEEBD8;
+  --teal: #39C2D7;
+  --orange: #F5A55C;
+  --warn: #B4630C;
+  --warn-soft: #FFF1E2;
+  --ring: #FBE4D6;
+  --shadow: 0 14px 34px rgba(160, 110, 160, 0.12);
+  --font-ui: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0A0E15; --bg-peach: #0E1520; --bg-lilac: #0B1A30;
+    --card: rgba(18, 24, 34, 0.86); --card-solid: #121925; --sunk: #1A2331;
+    --ink: #E7EDF5; --head: #DDE7F3; --muted: #8E9BB0; --line: #233043;
+    --accent: #38BDF8; --accent-2: #1E7BEA; --accent-ink: #FFFFFF; --accent-soft: #0E2B47;
+    --mark: #F59A3E; --mark-2: #F8BE7E; --mark-soft: #3E2A18; --on-mark: #26170A;
+    --warn: #F2B866; --warn-soft: #33260F; --ring: #0E2140;
+    --shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+    --theme-icon-moon: none; --theme-icon-sun: block;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0A0E15; --bg-peach: #0E1520; --bg-lilac: #0B1A30;
+  --card: rgba(18, 24, 34, 0.86); --card-solid: #121925; --sunk: #1A2331;
+  --ink: #E7EDF5; --head: #DDE7F3; --muted: #8E9BB0; --line: #233043;
+  --accent: #38BDF8; --accent-2: #1E7BEA; --accent-ink: #FFFFFF; --accent-soft: #0E2B47;
+  --mark: #F59A3E; --mark-2: #F8BE7E; --mark-soft: #3E2A18; --on-mark: #26170A;
+  --warn: #F2B866; --warn-soft: #33260F; --ring: #0E2140;
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+  --theme-icon-moon: none; --theme-icon-sun: block;
+}
+.theme-btn { font: inherit; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); cursor: pointer; }
+.theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+.theme-btn svg { width: 18px; height: 18px; flex: none; }
+.theme-btn .moon { display: var(--theme-icon-moon); }
+.theme-btn .sun { display: var(--theme-icon-sun); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; font-family: var(--font-ui); font-size: 14.5px; line-height: 1.5; color: var(--ink);
+  background:
+    radial-gradient(900px 600px at 0% 0%, var(--bg-peach), transparent 60%),
+    radial-gradient(1000px 700px at 100% 100%, var(--bg-lilac), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+.ring { position: fixed; left: -360px; top: -300px; width: 960px; height: 960px; border-radius: 50%; border: 210px solid var(--ring); opacity: .45; pointer-events: none; z-index: 0; }
+.app { position: relative; z-index: 1; display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+
+/* Menú lateral */
+.side {
+  background: var(--card); border-right: 1px solid var(--line); backdrop-filter: blur(14px);
+  padding-block: 28px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: 20px;
+  display: flex; flex-direction: column; gap: 34px; position: sticky; top: 0; height: 100vh;
+}
+.brand { display: flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; }
+.logo { position: relative; width: 30px; height: 30px; flex: none; }
+.logo::before { content: ""; position: absolute; left: 0; bottom: 0; width: 19px; height: 19px; border-radius: 6px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.logo::after { content: ""; position: absolute; right: 0; top: 0; width: 17px; height: 17px; border-radius: 50%; border: 4px solid var(--head); background: var(--card-solid); }
+.brand-txt { display: flex; flex-direction: column; line-height: 1.1; }
+.brand-txt b { font-weight: 800; font-size: 16px; }
+.brand-txt small { color: var(--muted); font-size: 12px; }
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav a { position: relative; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; color: var(--muted); text-decoration: none; font-weight: 600; }
+.nav a svg { width: 19px; height: 19px; flex: none; }
+.nav a:hover { color: var(--ink); background: var(--sunk); }
+.nav a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.nav a[aria-current="page"]::before { content: ""; position: absolute; left: -20px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accent); }
+.side-card { margin-top: auto; background: var(--card-solid); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; text-align: center; align-items: center; }
+.side-card .k { font-size: 12px; color: var(--muted); }
+.side-card .d { font-size: 12px; color: var(--muted); }
+.side-card .balls { justify-content: center; }
+
+/* Área principal */
+.main { min-width: 0; padding-block: 30px 56px; padding-left: 28px; padding-right: max(28px, env(safe-area-inset-right, 0px)); }
+.view { max-width: 1240px; display: flex; flex-direction: column; gap: 22px; }
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.page-head h1 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); font-weight: 800; color: var(--head); letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
+.page-head p { margin: 4px 0 0; color: var(--muted); max-width: 64ch; }
+.src-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; font-size: 13px; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 9px 13px; }
+.src-bar span { flex: 1 1 260px; min-width: 0; }
+.src-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+.src-bar.ok { color: var(--ink); }
+.src-bar.ok .src-dot { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.src-bar.warn .src-dot { background: var(--mark); box-shadow: 0 0 0 4px var(--mark-soft); }
+.chip-date { font-size: 12.5px; font-weight: 600; color: var(--mark); background: var(--mark-soft); padding: 5px 12px; border-radius: 99px; white-space: nowrap; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (min-width: 1180px) { .layout { grid-template-columns: minmax(340px, 410px) minmax(0, 1fr); } }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 18px; min-width: 0; box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+.col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.sec-title { font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); margin: 0 0 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sec-title .aux { text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 12.5px; color: var(--muted); }
+hr.div { border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+/* Presets */
+.presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.preset { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--card-solid); color: var(--ink); border-radius: 14px; padding: 11px 13px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; transition: transform .12s, box-shadow .12s; }
+.preset b { font-weight: 700; font-size: 14.5px; }
+.preset small { color: var(--muted); font-size: 12px; }
+.preset:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.preset[aria-pressed="true"] { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; color: var(--accent-ink); box-shadow: 0 10px 24px rgba(20, 180, 230, 0.30); }
+.preset[aria-pressed="true"] small { color: var(--accent-ink); opacity: .85; }
+
+/* Reglas */
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label, .lbl-sm { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+input[type="number"], input[type="text"], select {
+  font: inherit; font-size: 14.5px; font-weight: 600; color: var(--ink); background: var(--sunk);
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.stepper { display: flex; align-items: stretch; }
+.stepper input { text-align: center; border-radius: 0; border-left: 0; border-right: 0; }
+.stepper button { font: inherit; font-weight: 700; width: 36px; flex: none; border: 1px solid var(--line); background: var(--sunk); color: var(--ink); cursor: pointer; }
+.stepper button:first-child { border-radius: 10px 0 0 10px; }
+.stepper button:last-child { border-radius: 0 10px 10px 0; }
+.toggles { display: flex; flex-direction: column; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.toggle:last-child { border-bottom: 0; }
+.toggle .t-txt { display: flex; flex-direction: column; min-width: 0; }
+.toggle .t-txt b { font-weight: 600; font-size: 14px; }
+.toggle .t-txt small { color: var(--muted); font-size: 12.5px; }
+.toggle.disabled { opacity: 0.45; }
+.switch { position: relative; width: 42px; height: 24px; flex: none; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.switch span { position: absolute; inset: 0; background: var(--line); border-radius: 99px; transition: background .15s; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--card-solid); box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(18px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.switch input:disabled { cursor: not-allowed; }
+
+/* Boleto */
+.modes { display: grid; grid-template-columns: 1fr 1fr; border-radius: 12px; padding: 4px; background: var(--sunk); margin-bottom: 12px; }
+.modes button { font: inherit; font-size: 13px; font-weight: 600; border: 0; border-radius: 9px; padding: 8px; background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.modes button[aria-pressed="true"] { background: var(--card-solid); color: var(--ink); box-shadow: 0 2px 8px rgba(160, 110, 160, .14); }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+.dot.req { background: var(--mark); }
+.dot.pool { background: var(--accent-soft); border: 2px solid var(--accent); }
+.grid-nums { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 7px; }
+.num { font: inherit; font-weight: 600; font-size: 13px; aspect-ratio: 1; max-width: 100%; border-radius: 50%; border: 1px solid var(--line); background: var(--card-solid); color: var(--ink); cursor: pointer; padding: 0; display: grid; place-items: center; font-variant-numeric: tabular-nums; transition: transform .1s; }
+.num:hover:not(:disabled) { transform: scale(1.06); border-color: var(--muted); }
+.num.pool { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 700; }
+.num.req { background: var(--mark); border-color: var(--mark); color: var(--on-mark); font-weight: 700; box-shadow: 0 4px 12px rgba(226, 111, 10, .35); }
+.grid-nums.has-pool .num:not(.pool):not(.req) { opacity: .38; }
+.num:disabled { opacity: .3; cursor: not-allowed; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.picked-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.picked-row .txt { color: var(--muted); font-size: 12.5px; flex: 1 1 200px; }
+.btn { font: inherit; font-weight: 600; font-size: 13px; border-radius: 10px; padding: 8px 13px; border: 1px solid var(--line); background: var(--card-solid); color: var(--ink); cursor: pointer; }
+.btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--accent-ink); border-color: transparent; }
+.btn.primary:hover:not(:disabled) { color: var(--accent-ink); filter: brightness(1.04); }
+.btn.sm { padding: 4px 10px; font-size: 12px; }
+.typein { display: flex; gap: 8px; }
+.typein input { flex: 1; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.slot { display: flex; flex-direction: column; gap: 3px; }
+.slot label { font-size: 12px; color: var(--muted); }
+.slot select.set { border-color: var(--mark); background: var(--mark-soft); }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.msg { font-size: 13px; color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 9px 12px; margin: 0; }
+
+/* Resultados */
+.hero-res { display: flex; flex-direction: column; gap: 6px; }
+.hero-res .kicker { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bignum { font-weight: 800; font-size: clamp(38px, 6.4vw, 64px); line-height: 1; letter-spacing: -0.03em; color: var(--head); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hero-res .sub { color: var(--muted); }
+.hero-res .sub b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.formula { font-family: var(--font-mono); font-size: 12.5px; background: var(--sunk); border-radius: 10px; padding: 9px 12px; overflow-x: auto; white-space: nowrap; }
+.formula .lbl { color: var(--muted); font-family: var(--font-ui); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.stat { padding: 13px 15px; display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 14px; background: var(--card-solid); min-width: 0; }
+.stat .k { font-size: 12.5px; color: var(--muted); }
+.stat .v { font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stat .s { font-size: 12px; color: var(--muted); }
+.price-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.price-field input { width: 110px; }
+
+/* Tablas */
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.num-c { font-weight: 600; }
+td.r, th.r { text-align: right; padding-right: 0; padding-left: 12px; }
+tr.top td { font-weight: 700; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--mark-soft); color: var(--mark); margin-left: 6px; vertical-align: 1px; }
+.pill.blue { background: var(--accent-soft); color: var(--accent); }
+.bar { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent)); min-width: 2px; }
+.bar-cell { width: 28%; min-width: 60px; }
+
+/* Listado */
+.list-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.pager { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pager .info { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; padding: 0 4px; }
+.jump { display: flex; gap: 6px; align-items: center; }
+.jump input { width: 150px; }
+.combo-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 18px; }
+.combo { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.combo .idx { font-size: 11.5px; color: var(--muted); flex: 0 0 auto; width: 9ch; text-align: right; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.balls { display: flex; flex-wrap: wrap; gap: 5px; }
+.ball { font-size: 12.5px; font-weight: 700; width: 29px; height: 29px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ball.fx { background: var(--mark); color: var(--on-mark); }
+.ball.ad { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.ball.lg { width: 36px; height: 36px; font-size: 14.5px; }
+.export { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; padding-top: 14px; border-top: 1px solid var(--line); }
+.export .field { width: 170px; }
+.export .status { font-size: 12.5px; color: var(--muted); flex-basis: 100%; }
+.note { font-size: 12.5px; color: var(--muted); max-width: 80ch; margin: 0; }
+
+/* Histórico */
+.game-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.game-tabs button { font: inherit; font-weight: 600; font-size: 13.5px; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); cursor: pointer; }
+.game-tabs button:hover { color: var(--ink); }
+.game-tabs button[aria-pressed="true"] { background: var(--head); border-color: var(--head); color: var(--card-solid); }
+.cards3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.hcard { background: var(--card-solid); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); min-width: 0; }
+.hcard .k { font-size: 12.5px; color: var(--muted); }
+.hcard .v { font-weight: 800; font-size: 24px; color: var(--head); font-variant-numeric: tabular-nums; line-height: 1.15; overflow-wrap: anywhere; }
+.hcard .s { font-size: 12.5px; color: var(--muted); }
+.hcard.hl { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; color: var(--accent-ink); box-shadow: 0 14px 30px rgba(20, 180, 230, .30); }
+.hcard.hl .k, .hcard.hl .s { color: var(--accent-ink); opacity: .85; }
+.hcard.hl .ball { background: rgba(255,255,255,.92); color: #1F5470; }
+.hcard.hl .ball.ad { background: transparent; color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--accent-ink); }
+.freq-wrap { overflow-x: auto; padding-bottom: 4px; }
+.freq { display: grid; align-items: end; gap: 3px; height: 180px; }
+.fcol { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
+.fbar { width: 100%; max-width: 22px; border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, var(--accent-2), var(--accent)); opacity: .55; }
+.fcol.hot .fbar { background: linear-gradient(180deg, var(--mark-2), var(--mark)); opacity: 1; }
+.fcol.cold .fbar { opacity: .25; }
+.flab { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fcol.hot .flab { color: var(--mark); font-weight: 700; }
+.hotcold { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.hotcold > div { display: flex; flex-direction: column; gap: 8px; }
+.ball .c { display: none; }
+.search { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
+.hits { font-weight: 700; color: var(--mark); }
+
+/* Menú plegable */
+.side-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.collapse-btn { width: 34px; height: 34px; flex: none; border-radius: 10px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.collapse-btn:hover { color: var(--accent); border-color: var(--accent); }
+.collapse-btn svg { width: 18px; height: 18px; transition: transform .2s; }
+.app { transition: grid-template-columns .2s; }
+@media (min-width: 901px) {
+  .app.collapsed { grid-template-columns: 78px minmax(0, 1fr); }
+  .app.collapsed .side { padding-left: 14px; padding-right: 14px; align-items: center; }
+  .app.collapsed .side-top { flex-direction: column-reverse; gap: 18px; }
+  .app.collapsed .brand-txt, .app.collapsed .nav a span, .app.collapsed .theme-btn span, .app.collapsed .side-card { display: none; }
+  .app.collapsed .nav a { justify-content: center; padding: 11px; }
+  .app.collapsed .nav a[aria-current="page"]::before { left: -14px; }
+  .app.collapsed .theme-btn { justify-content: center; padding: 10px; }
+  .app.collapsed .collapse-btn svg { transform: scaleX(-1); }
+}
+
+/* Barra de filtros activos */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 4px 6px 4px 11px; border-radius: 99px; background: var(--accent-soft); color: var(--ink); }
+.chip button { border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; padding: 0; font: inherit; font-size: 14px; line-height: 1; }
+.chip button:hover { background: var(--card-solid); color: var(--ink); }
+
+/* Botón flotante */
+.fab {
+  position: fixed; z-index: 20;
+  right: calc(22px + env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex; align-items: center; gap: 9px; font: inherit; font-weight: 700; font-size: 14px;
+  padding: 13px 18px; border-radius: 99px; border: 0; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--accent-ink);
+  box-shadow: 0 12px 28px rgba(20, 180, 230, .38);
+}
+.fab:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.fab svg { width: 18px; height: 18px; }
+.fab-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; display: grid; place-items: center; font-size: 12px; background: var(--mark); color: var(--on-mark); }
+
+/* Popup de filtros */
+.modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(8, 12, 20, .45); backdrop-filter: blur(3px); }
+.modal-card { position: relative; width: min(480px, 100%); max-height: 100%; overflow-y: auto; background: var(--card-solid); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 24px 60px rgba(30, 20, 60, .25); padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.modal-head h2 { margin: 0; font-size: 19px; font-weight: 800; color: var(--head); }
+.icon-btn { width: 34px; height: 34px; flex: none; border-radius: 10px; border: 1px solid var(--line); background: var(--sunk); color: var(--muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.icon-btn:hover { color: var(--ink); }
+.icon-btn svg { width: 16px; height: 16px; }
+.m-sec { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.m-title { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.m-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+input[type="date"] { font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); background: var(--sunk); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; width: 100%; min-width: 0; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; }
+.quick button { font: inherit; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); cursor: pointer; }
+.quick button:hover { color: var(--accent); border-color: var(--accent); }
+.modal-foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--line); }
+.m-preview { font-size: 13px; font-weight: 600; color: var(--head); }
+.m-actions { display: flex; gap: 8px; }
+@media (max-width: 900px) {
+  .collapse-btn { display: none; }
+  .fab { right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); padding: 12px 16px; }
+  .modal { place-items: end center; }
+  .modal-card { border-radius: 20px 20px 16px 16px; }
+}
+.rep-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.rep-stats .stat .v { color: var(--head); font-size: 22px; }
+.rep-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.rep-row .when { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--sunk); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tag.seg { background: var(--mark-soft); color: var(--mark); }
+.tag.times { background: var(--accent-soft); color: var(--accent); }
+.seen { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--mark-soft); color: var(--mark); white-space: nowrap; }
+.combo .seen { margin-left: auto; }
+a.link { color: var(--accent); font-weight: 600; text-decoration: none; }
+a.link:hover { text-decoration: underline; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; align-items: start; }
+.rule-card { background: var(--card-solid); border: 1px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.rule-card h3 { margin: 0; font-size: 18px; font-weight: 800; color: var(--head); display: flex; align-items: center; gap: 10px; }
+.rule-card h3 i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.rule-card ul, .faq ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.rule-card li, .faq li { color: var(--ink); }
+.rule-card .links { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); }
+.faq p { margin: 0; max-width: 78ch; }
+.faq .answer { font-size: 16px; font-weight: 700; color: var(--head); }
+.link-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.link-list a { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card-solid); text-decoration: none; color: var(--ink); }
+.link-list a:hover { border-color: var(--accent); }
+.link-list a b { color: var(--accent); font-weight: 700; }
+.link-list a span { font-size: 12.5px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--card-solid); }
+  .side {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; height: auto; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px;
+    padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    border-right: 0; border-bottom: 1px solid var(--line); background: var(--card-solid);
+  }
+  .brand-txt small { display: none; }
+  .nav { flex-direction: row; gap: 4px; }
+  .nav a { padding: 8px 11px; }
+  .nav a[aria-current="page"]::before { display: none; }
+  .side-card { display: none; }
+  .theme-btn { padding: 8px 10px; }
+  .theme-btn span { display: none; }
+  .main { padding-block: 22px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .search { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .search .wide { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fields .field.rpos { grid-column: 1 / -1; }
+  .combo .idx { width: 7ch; }
+  .bar-cell, #prizes th:last-child { display: none; }
+  th, td { padding-right: 8px; }
+  .pager .info { order: -1; flex-basis: 100%; }
+  .nav a span { display: none; }
+  .brand-txt b { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="ring" aria-hidden="true"></div>
+<div class="app">
+  <aside class="side">
+    <div class="side-top">
+      <a class="brand" href="#calculadora">
+        <span class="logo" aria-hidden="true"></span>
+        <span class="brand-txt"><b>Combinaciones</b><small>de Lotería</small></span>
+      </a>
+      <button type="button" class="collapse-btn" id="collapse-btn" aria-label="Esconder el menú" aria-expanded="true" title="Esconder el menú">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path d="M16 10l-2 2 2 2"/></svg>
+      </button>
+    </div>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#calculadora" data-view="calculadora" title="Calculadora">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>
+        <span>Calculadora</span>
+      </a>
+      <a href="#historico" data-view="historico" title="Histórico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg>
+        <span>Histórico</span>
+      </a>
+      <a href="#reglas" data-view="reglas" title="Reglas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/><path d="M9 7h7M9 11h5"/></svg>
+        <span>Reglas</span>
+      </a>
+    </nav>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="Cambiar entre modo claro y oscuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span id="theme-lbl">Modo oscuro</span>
+    </button>
+    <div class="side-card" id="side-card" hidden>
+      <span class="k">Último Melate</span>
+      <div class="balls" id="side-balls"></div>
+      <span class="d" id="side-date"></span>
+      <a class="btn sm primary" href="#historico">Ver histórico</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ========== Calculadora ========== -->
+    <section class="view" id="view-calculadora">
+      <div class="page-head">
+        <div>
+          <h1>Calculadora</h1>
+          <p>Elige el sorteo, ajusta las reglas y marca tus números. Verás cuántas jugadas hay, la probabilidad, el costo y la lista completa.</p>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel" aria-label="Configuración">
+          <div>
+            <h2 class="sec-title">Sorteo</h2>
+            <div class="presets" id="presets">
+              <button class="preset" type="button" data-preset="melate" aria-pressed="false"><b>Melate / Revancha</b><small>6 de 56 · con adicional</small></button>
+              <button class="preset" type="button" data-preset="chispazo" aria-pressed="false"><b>Chispazo</b><small>5 de 28</small></button>
+              <button class="preset" type="button" data-preset="tris" aria-pressed="false"><b>Tris</b><small>5 dígitos 0–9 en orden</small></button>
+              <button class="preset" type="button" data-preset="custom" aria-pressed="false"><b>Personalizado</b><small>Tus propias reglas</small></button>
+            </div>
+          </div>
+
+          <hr class="div">
+
+          <div>
+            <h2 class="sec-title">Reglas</h2>
+            <div class="fields">
+              <div class="field"><label for="f-min">Desde</label><input id="f-min" type="number" inputmode="numeric"></div>
+              <div class="field"><label for="f-max">Hasta</label><input id="f-max" type="number" inputmode="numeric"></div>
+              <div class="field rpos"><label for="f-r">Posiciones</label>
+                <div class="stepper"><button type="button" id="r-dec" aria-label="Quitar una posición">−</button><input id="f-r" type="number" inputmode="numeric" min="1" max="20"><button type="button" id="r-inc" aria-label="Agregar una posición">+</button></div>
+              </div>
+            </div>
+            <div class="toggles" style="margin-top:8px">
+              <div class="toggle" id="row-ordered"><div class="t-txt"><b>¿Importa el orden?</b><small>Sí: 1-2-3 y 3-2-1 son jugadas distintas.</small></div><label class="switch"><input type="checkbox" id="t-ordered" aria-label="Importa el orden"><span></span></label></div>
+              <div class="toggle" id="row-rep"><div class="t-txt"><b>¿Se pueden repetir números?</b><small>Sí: se vale 7-7-2.</small></div><label class="switch"><input type="checkbox" id="t-rep" aria-label="Se pueden repetir números"><span></span></label></div>
+              <div class="toggle" id="row-pos"><div class="t-txt"><b>Fijar en posición</b><small>Cada número va en un lugar concreto, no en cualquiera.</small></div><label class="switch"><input type="checkbox" id="t-pos" aria-label="Fijar números en posición"><span></span></label></div>
+              <div class="toggle" id="row-adic"><div class="t-txt"><b>Sorteo con número adicional</b><small>Como Melate: agrega categorías “+ adicional”.</small></div><label class="switch"><input type="checkbox" id="t-adic" aria-label="Sorteo con número adicional"><span></span></label></div>
+            </div>
+          </div>
+
+          <hr class="div">
+
+          <div>
+            <h2 class="sec-title"><span>Tus números</span></h2>
+            <div class="modes" id="modes" aria-label="Qué marcas al tocar un número">
+              <button type="button" data-mode="req" aria-pressed="true"><i class="dot req"></i>Debe contener</button>
+              <button type="button" data-mode="pool" aria-pressed="false"><i class="dot pool"></i>Solo usar estos</button>
+            </div>
+            <div id="pick-any">
+              <div class="grid-nums" id="grid"></div>
+              <div class="typein" style="margin-top:12px">
+                <input id="f-type" type="text" placeholder="7, 13, 41 o 1-10" aria-label="Escribir números o rangos separados por coma">
+                <button class="btn" type="button" id="b-type">Marcar</button>
+              </div>
+            </div>
+            <div id="pick-pos" hidden>
+              <div class="slots" id="slots"></div>
+            </div>
+            <div class="legend" id="legend" style="margin-top:12px"></div>
+            <div class="picked-row" style="margin-top:10px">
+              <span class="txt" id="pick-hint"></span>
+              <button class="btn" type="button" id="b-clear">Limpiar todo</button>
+            </div>
+            <p class="msg" id="pick-msg" hidden style="margin-top:10px"></p>
+          </div>
+        </section>
+
+        <div class="col">
+          <section class="panel" aria-label="Resultado">
+            <p class="msg" id="err" hidden></p>
+            <div class="hero-res">
+              <span class="kicker" id="hero-kicker">Combinaciones que contienen tus números</span>
+              <span class="bignum" id="big">—</span>
+              <span class="sub" id="hero-sub"></span>
+            </div>
+            <div class="formula" id="formula"></div>
+            <div class="stats">
+              <div class="stat"><span class="k">Probabilidad con 1 boleto</span><span class="v" id="s-p1">—</span><span class="s">premio mayor</span></div>
+              <div class="stat"><span class="k">Si juegas todas las de arriba</span><span class="v" id="s-pall">—</span><span class="s" id="s-pall-s"></span></div>
+              <div class="stat"><span class="k">Costo de jugarlas todas</span><span class="v" id="s-cost">—</span><span class="s" id="s-cost-s"></span></div>
+              <div class="stat"><span class="k">Costo de cubrir todo el sorteo</span><span class="v" id="s-costall">—</span><span class="s" id="s-costall-s"></span></div>
+            </div>
+            <div class="price-field">
+              <label for="f-price" class="lbl-sm">Precio por boleto (MXN)</label>
+              <input id="f-price" type="number" inputmode="decimal" min="0" step="0.5">
+              <span class="hint" id="price-hint"></span>
+            </div>
+          </section>
+
+          <section class="panel" aria-label="Premios secundarios">
+            <h2 class="sec-title" style="margin:0">Premios secundarios <span class="aux" id="prz-aux"></span></h2>
+            <div class="tbl-wrap" id="prizes"></div>
+            <p class="hint" id="prz-note"></p>
+          </section>
+
+          <section class="panel" aria-label="Listado de combinaciones">
+            <div class="list-head">
+              <h2 class="sec-title" style="margin:0">Listado</h2>
+              <div class="pager">
+                <button class="btn" type="button" id="p-first" aria-label="Primera página">«</button>
+                <button class="btn" type="button" id="p-prev" aria-label="Página anterior">‹</button>
+                <span class="info" id="p-info"></span>
+                <button class="btn" type="button" id="p-next" aria-label="Página siguiente">›</button>
+                <button class="btn" type="button" id="p-last" aria-label="Última página">»</button>
+              </div>
+            </div>
+            <div class="list-head">
+              <div class="jump">
+                <label for="f-jump" class="lbl-sm">Ir a la #</label>
+                <input id="f-jump" type="text" inputmode="numeric" placeholder="20000000">
+                <button class="btn" type="button" id="b-jump">Ir</button>
+              </div>
+              <div class="jump">
+                <label for="f-psize" class="lbl-sm">Por página</label>
+                <select id="f-psize" style="width:auto"><option>50</option><option selected>100</option><option>200</option></select>
+              </div>
+            </div>
+            <div class="combo-list" id="list"></div>
+            <p class="hint" id="list-note" hidden></p>
+            <div class="export">
+              <div class="field"><label for="f-exstart">Exportar desde la #</label><input id="f-exstart" type="text" inputmode="numeric" value="1"></div>
+              <div class="field"><label for="f-exlimit">Cuántas como máximo</label><input id="f-exlimit" type="number" inputmode="numeric" value="100000" min="1" max="2000000" step="1000"></div>
+              <button class="btn primary" type="button" id="b-export">Exportar CSV</button>
+              <span class="status" id="ex-status"></span>
+            </div>
+          </section>
+
+          <p class="note">Esta herramienta solo cuenta. Cada combinación tiene exactamente la misma probabilidad de salir; ningún método de selección la cambia. Comprar más boletos sube tu probabilidad en proporción a lo que gastas. Los precios son editables: confírmalos en el punto de venta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== Histórico ========== -->
+    <section class="view" id="view-historico" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Histórico</h1>
+          <p>Resultados oficiales de cada sorteo: números ganadores, adicional y bolsa acumulada.</p>
+        </div>
+        <span class="chip-date" id="h-updated"></span>
+      </div>
+      <div class="src-bar" id="src-status" role="status"></div>
+
+      <div class="game-tabs" id="h-games" aria-label="Sorteo">
+        <button type="button" data-game="melate" aria-pressed="true">Melate</button>
+        <button type="button" data-game="revancha" aria-pressed="false">Revancha</button>
+        <button type="button" data-game="revanchita" aria-pressed="false">Revanchita</button>
+        <button type="button" data-game="chispazo" aria-pressed="false">Chispazo</button>
+        <button type="button" data-game="tris" aria-pressed="false">Tris</button>
+      </div>
+
+      <p class="msg" id="h-empty" hidden>No hay datos del histórico en esta copia. Ejecuta <code>node actualizar-historico.mjs</code> en la carpeta del programa para descargarlos.</p>
+
+      <div class="cards3" id="h-cards">
+        <div class="hcard hl"><span class="k" id="h-last-k">Último sorteo</span><div class="balls" id="h-last-balls"></div><span class="s" id="h-last-s"></span></div>
+        <div class="hcard"><span class="k">Sorteos registrados</span><span class="v" id="h-count">—</span><span class="s" id="h-count-s"></span></div>
+        <div class="hcard"><span class="k" id="h-third-k">Bolsa más alta</span><span class="v" id="h-third">—</span><span class="s" id="h-third-s"></span></div>
+      </div>
+
+      <section class="panel" aria-label="Frecuencia de números">
+        <div class="list-head">
+          <h2 class="sec-title" style="margin:0">Frecuencia de cada número <span class="aux" id="f-aux"></span></h2>
+          <div class="jump">
+            <label for="h-period" class="lbl-sm">Periodo</label>
+            <select id="h-period" style="width:auto">
+              <option value="n100">Últimos 100 sorteos</option>
+              <option value="y1" selected>Último año</option>
+              <option value="y5">Últimos 5 años</option>
+              <option value="all">Todo el histórico</option>
+            </select>
+          </div>
+        </div>
+        <div class="freq-wrap"><div class="freq" id="h-freq"></div></div>
+        <div class="hotcold">
+          <div><span class="lbl-sm">Más frecuentes</span><div class="balls" id="h-hot"></div></div>
+          <div><span class="lbl-sm">Menos frecuentes</span><div class="balls" id="h-cold"></div></div>
+        </div>
+        <p class="hint" id="h-freq-note"></p>
+      </section>
+
+      <section class="panel" aria-label="Buscar resultados" id="h-results">
+        <h2 class="sec-title" style="margin:0">Resultados <span class="aux" id="h-res-aux"></span></h2>
+        <div class="filter-bar">
+          <div class="chips" id="h-chips"></div>
+          <button class="btn" type="button" id="h-open-filters" aria-haspopup="dialog">Editar filtros</button>
+        </div>
+        <div class="tbl-wrap" id="h-table"></div>
+        <div class="list-head">
+          <span class="hint" id="h-info"></span>
+          <div class="pager">
+            <button class="btn" type="button" id="h-prev" aria-label="Página anterior">‹ Anteriores</button>
+            <button class="btn" type="button" id="h-next" aria-label="Página siguiente">Siguientes ›</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="Combinaciones ganadoras repetidas">
+        <h2 class="sec-title" style="margin:0">Combinaciones ganadoras repetidas <span class="aux" id="r-aux"></span></h2>
+        <div class="rep-stats">
+          <div class="stat"><span class="k">Combinaciones que salieron 2 o más veces</span><span class="v" id="r-n">—</span><span class="s" id="r-n-s"></span></div>
+          <div class="stat"><span class="k">Coincidencias observadas</span><span class="v" id="r-obs">—</span><span class="s">pares de sorteos con la misma combinación</span></div>
+          <div class="stat"><span class="k">Esperadas por puro azar</span><span class="v" id="r-exp">—</span><span class="s" id="r-exp-s"></span></div>
+          <div class="stat"><span class="k">En concursos seguidos</span><span class="v" id="r-seg">—</span><span class="s">la misma combinación en dos sorteos consecutivos</span></div>
+        </div>
+        <div id="r-list"></div>
+        <div class="list-head">
+          <span class="hint" id="r-note"></span>
+          <button class="btn" type="button" id="r-more">Ver más</button>
+        </div>
+        <p class="hint">¿Las reglas permiten que se repita? Revisa <a class="link" href="#reglas">Reglas y reglamento</a>.</p>
+      </section>
+
+      <p class="note">Datos oficiales publicados por Lotería Nacional. Las bolsas anteriores a 1993 se muestran en pesos actuales (1 peso actual = 1,000 pesos anteriores). Los resultados pasados no cambian la probabilidad de los próximos sorteos: un número que salió mucho no está “caliente” ni uno que salió poco está “por salir”.</p>
+    </section>
+
+    <!-- ========== Reglas ========== -->
+    <section class="view" id="view-reglas" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Reglas y reglamento</h1>
+          <p>Cómo funciona cada sorteo según Lotería Nacional y dónde consultar las reglas oficiales.</p>
+        </div>
+        <span class="chip-date">Consultado el 19 nov 2026</span>
+      </div>
+
+      <section class="panel faq" aria-label="Repetición de combinaciones">
+        <h2 class="sec-title" style="margin:0">¿Se puede repetir una combinación ganadora?</h2>
+        <p class="answer">Sí. Ninguna regla publicada descarta las combinaciones que ya salieron, y el histórico oficial lo confirma.</p>
+        <ul>
+          <li>Las páginas oficiales describen que en cada sorteo las urnas eligen las esferas <b>al azar</b>. No mencionan retirar ni excluir combinaciones anteriores.</li>
+          <li id="faq-data">El histórico muestra repeticiones reales.</li>
+          <li>Cada sorteo es independiente: una combinación que ya ganó tiene exactamente la misma probabilidad de volver a salir que cualquier otra.</li>
+          <li>No encontramos un reglamento en PDF publicado en el sitio de Lotería Nacional. Para una respuesta oficial, consulta la página de cada juego o pregunta directamente en Lotería Nacional.</li>
+        </ul>
+      </section>
+
+      <div class="rules">
+        <article class="rule-card">
+          <h3><i style="background:var(--accent)"></i>Melate, Revancha y Revanchita</h3>
+          <ul>
+            <li>Eliges 6 números del 1 al 56, o más en combinación múltiple.</li>
+            <li>Melate saca 6 números naturales y un adicional. Hay 9 niveles de premio, desde 2 aciertos más el adicional; del 1º al 5º el premio es variable y del 6º al 9º es fijo.</li>
+            <li>Revancha y Revanchita usan urnas propias de 6 esferas, sin adicional. Para jugarlas tienes que participar en Melate.</li>
+            <li>Bolsas mínimas garantizadas: Melate 30 millones, Revancha 20 millones y Revanchita 10 millones; se acumulan si no hay ganador.</li>
+            <li>Los tres se sortean siempre juntos.</li>
+          </ul>
+          <div class="links">
+            <a class="btn sm" href="https://www.loterianacional.gob.mx/Melate/Melate" target="_blank" rel="noopener">Página oficial de Melate ↗</a>
+          </div>
+        </article>
+        <article class="rule-card">
+          <h3><i style="background:var(--mark)"></i>Chispazo</h3>
+          <ul>
+            <li>Eliges 5 números del 1 al 28, o 6 o 7 en combinación múltiple.</li>
+            <li>Se sortea dos veces al día, todos los días.</li>
+            <li>No tiene bolsa mínima garantizada: los premios dependen de lo que se venda en cada sorteo.</li>
+          </ul>
+          <div class="links">
+            <a class="btn sm" href="https://www.loterianacional.gob.mx/Chispazo/Chispazo" target="_blank" rel="noopener">Página oficial de Chispazo ↗</a>
+          </div>
+        </article>
+        <article class="rule-card">
+          <h3><i style="background:var(--orange)"></i>Tris</h3>
+          <ul>
+            <li>Cinco urnas con esferas del 0 al 9 forman una cifra de 5 dígitos.</li>
+            <li>Juegas de 1 a 5 dígitos desde $1; a mayor apuesta, mayor premio posible.</li>
+            <li>Hay modalidades por las últimas 4 o las últimas 3 cifras, y otras donde el orden no tiene que coincidir.</li>
+            <li>También hay combos de varias apuestas y un Combomático que elige la cifra al azar.</li>
+          </ul>
+          <div class="links">
+            <a class="btn sm" href="https://www.loterianacional.gob.mx/Tris/Tris" target="_blank" rel="noopener">Página oficial de Tris ↗</a>
+          </div>
+        </article>
+      </div>
+
+      <section class="panel" aria-label="Enlaces oficiales">
+        <h2 class="sec-title" style="margin:0">Enlaces oficiales</h2>
+        <div class="link-list">
+          <a href="https://www.loterianacional.gob.mx/Mascarillas/ListasPremios" target="_blank" rel="noopener"><b>Lista de premios ↗</b><span>Resultados y premios de cada concurso</span></a>
+          <a href="https://www.loterianacional.gob.mx/Billete/CalendarioSorteos" target="_blank" rel="noopener"><b>Calendario de concursos y sorteos ↗</b><span>Días y horarios oficiales</span></a>
+          <a href="https://www.loterianacional.gob.mx/Documentos/Historicos/Melate.csv" target="_blank" rel="noopener"><b>Histórico oficial (CSV) ↗</b><span>Fuente de los datos de esta página; cambia Melate por Chispazo, Tris, Revancha o Revanchita en la dirección</span></a>
+          <a href="https://www.dof.gob.mx/" target="_blank" rel="noopener"><b>Diario Oficial de la Federación ↗</b><span>Busca “Lotería Nacional” para disposiciones publicadas</span></a>
+        </div>
+        <p class="hint">Cobro de premios: tienes hasta 60 días naturales; cualquier monto se puede cobrar en las oficinas de Lotería Nacional (Av. Insurgentes Sur 1397, Col. Insurgentes Mixcoac, CDMX).</p>
+      </section>
+
+      <p class="note">Resumen hecho con las páginas oficiales de cada juego. Si algo no coincide, manda la información vigente de Lotería Nacional.</p>
+    </section>
+  </main>
+</div>
+
+<button type="button" class="fab" id="fab-filtros" hidden aria-haspopup="dialog" aria-controls="filtros">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z"/></svg>
+  <span>Filtros</span>
+  <b class="fab-count" id="fab-count" hidden></b>
+</button>
+
+<div class="modal" id="filtros" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="filtros-title">
+    <div class="modal-head">
+      <div>
+        <h2 id="filtros-title">Filtrar resultados</h2>
+        <span class="hint" id="m-game"></span>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="Cerrar filtros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="m-sec">
+      <span class="m-title">Fecha</span>
+      <div class="m-row">
+        <div class="field"><label for="m-from">Desde</label><input id="m-from" type="date"></div>
+        <div class="field"><label for="m-to">Hasta</label><input id="m-to" type="date"></div>
+      </div>
+      <div class="quick" id="m-quick">
+        <button type="button" data-q="30">Últimos 30 días</button>
+        <button type="button" data-q="365">Último año</button>
+        <button type="button" data-q="year">Este año</button>
+        <button type="button" data-q="all">Todas las fechas</button>
+      </div>
+    </div>
+    <div class="m-sec">
+      <span class="m-title">Números</span>
+      <div class="field"><label for="m-nums">Que contengan estos números</label><input id="m-nums" type="text" placeholder="Ej. 7, 21, 33 o 1-5"></div>
+      <div class="m-row">
+        <div class="field"><label for="m-min">Mínimo de aciertos</label><select id="m-min"></select></div>
+        <div class="field"><label for="m-conc">Concurso</label><input id="m-conc" type="text" inputmode="numeric" placeholder="Todos"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="m-preview" id="m-preview"></span>
+      <div class="m-actions">
+        <button type="button" class="btn" id="m-clear">Limpiar</button>
+        <button type="button" class="btn primary" id="m-apply">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIST START -->
+<script id="hist-data" type="application/json">{"updated":null,"games":{}}</script>
+<!-- HIST END -->
+
+<script>
+// ENGINE START
+const Engine = (() => {
+  const binMemo = new Map();
+  function C(n, k) {
+    if (k < 0 || n < 0 || k > n) return 0n;
+    k = Math.min(k, n - k);
+    const key = n + ":" + k;
+    let r = binMemo.get(key);
+    if (r !== undefined) return r;
+    r = 1n;
+    for (let i = 0; i < k; i++) r = (r * BigInt(n - i)) / BigInt(i + 1);
+    binMemo.set(key, r);
+    return r;
+  }
+  function P(n, k) {
+    if (k < 0 || n < 0 || k > n) return 0n;
+    let r = 1n;
+    for (let i = 0; i < k; i++) r *= BigInt(n - i);
+    return r;
+  }
+  const fact = (n) => P(n, n);
+  const powB = (b, e) => BigInt(b) ** BigInt(e);
+  // Sucesiones de largo L sobre N valores que contienen m valores dados al menos una vez
+  function surj(N, L, m) {
+    let s = 0n;
+    for (let j = 0; j <= m; j++) {
+      const t = C(m, j) * powB(N - j, L);
+      s += j % 2 ? -t : t;
+    }
+    return s;
+  }
+
+  // cfg: { N, R, ordered, rep, posMode, req: [indices], pos: [indice|null] x R }
+  function createSpace(cfg) {
+    const { N, R, ordered, rep } = cfg;
+    const posMode = !!(ordered && cfg.posMode);
+    const isReq = new Uint8Array(N);
+    const reqList = posMode ? [] : [...new Set(cfg.req)];
+    for (const v of reqList) isReq[v] = 1;
+    const K = reqList.length;
+    const pos = posMode ? cfg.pos.slice(0, R) : null;
+    const isFixedVal = new Uint8Array(N);
+    let KF = 0;
+    if (posMode) for (const v of pos) if (v != null && !isFixedVal[v]) { isFixedVal[v] = 1; KF++; }
+    const freeAfter = new Int32Array(R + 1);
+    for (let p = R - 1; p >= 0; p--) freeAfter[p] = freeAfter[p + 1] + (posMode ? (pos[p] == null ? 1 : 0) : 1);
+
+    const used = new Uint16Array(N);
+    const seq = new Array(R);
+    let p = 0, lo = 0, miss = K, freeUsed = 0;
+    const loStack = [];
+
+    function reset() { used.fill(0); p = 0; lo = 0; miss = K; freeUsed = 0; loStack.length = 0; }
+
+    function count() {
+      const L = R - p;
+      if (!ordered) {
+        for (const r of reqList) if (!used[r] && r < lo) return 0n;
+        const A = N - lo, m = miss;
+        if (L < m) return 0n;
+        if (rep) return L - m === 0 ? 1n : C(A + L - m - 1, L - m);
+        return C(A - m, L - m);
+      }
+      if (posMode) {
+        const f = freeAfter[p];
+        return rep ? powB(N, f) : P(N - KF - freeUsed, f);
+      }
+      if (rep) return surj(N, L, miss);
+      if (L < miss) return 0n;
+      return C(N - p - miss, L - miss) * fact(L);
+    }
+
+    function allowed(v) {
+      if (!ordered) return v >= lo;
+      if (posMode) {
+        if (pos[p] != null) return v === pos[p];
+        return rep || (!used[v] && !isFixedVal[v]);
+      }
+      return rep || !used[v];
+    }
+    function candStart() { return !ordered ? lo : (posMode && pos[p] != null ? pos[p] : 0); }
+    function candEnd() { return posMode && pos[p] != null ? pos[p] + 1 : N; }
+
+    function push(v) {
+      loStack.push(lo);
+      if (posMode && pos[p] == null) freeUsed++;
+      used[v]++;
+      if (isReq[v] && used[v] === 1) miss--;
+      seq[p] = v;
+      lo = rep ? v : v + 1;
+      p++;
+    }
+    function pop(v) {
+      p--;
+      if (isReq[v] && used[v] === 1) miss++;
+      used[v]--;
+      if (posMode && pos[p] == null) freeUsed--;
+      lo = loStack.pop();
+    }
+
+    reset();
+    const total = count();
+
+    function unrank(i) {
+      i = BigInt(i);
+      if (i < 0n || i >= total) return null;
+      reset();
+      for (let q = 0; q < R; q++) {
+        let ok = false;
+        for (let v = candStart(), e = candEnd(); v < e; v++) {
+          if (!allowed(v)) continue;
+          push(v);
+          const c = count();
+          if (i < c) { ok = true; break; }
+          i -= c;
+          pop(v);
+        }
+        if (!ok) throw new Error("unrank fuera de rango");
+      }
+      return seq.slice();
+    }
+
+    function* walk(skip) {
+      if (p === R) { yield seq.slice(); return; }
+      for (let v = candStart(), e = candEnd(); v < e; v++) {
+        if (!allowed(v)) continue;
+        push(v);
+        const c = count();
+        if (c === 0n) { pop(v); continue; }
+        if (skip >= c) { skip -= c; pop(v); continue; }
+        yield* walk(skip);
+        skip = 0n;
+        pop(v);
+      }
+    }
+    // Recorre en orden desde el índice start (base 0)
+    function* iterate(start) {
+      start = BigInt(start);
+      if (start < 0n || start >= total) return;
+      reset();
+      yield* walk(start);
+    }
+
+    return { total, unrank, iterate, K, KF, posMode };
+  }
+
+  return { C, P, fact, powB, surj, createSpace };
+})();
+// ENGINE END
+
+/* ---------- Calculadora ---------- */
+const PRESETS = {
+  melate:   { min: 1, max: 56, R: 6, ordered: false, rep: false, posMode: false, adic: true,  price: 15, example: [7, 21], priceHint: "Melate sencillo; Revancha y Revanchita se pagan aparte." },
+  chispazo: { min: 1, max: 28, R: 5, ordered: false, rep: false, posMode: false, adic: false, price: 10, example: [3, 17], priceHint: "Jugada sencilla de 5 números." },
+  tris:     { min: 0, max: 9,  R: 5, ordered: true,  rep: true,  posMode: false, adic: false, price: 1,  example: [7], priceHint: "Jugada mínima." },
+};
+const MAX_N = 200, MAX_R = 20;
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => (typeof n === "bigint" ? n : BigInt(Math.round(n))).toLocaleString("es-MX");
+
+const S = {
+  preset: "melate", min: 1, max: 56, R: 6, ordered: false, rep: false, posMode: false, adic: true, price: 15,
+  req: [], pos: [], pool: [], mode: "req", pageStart: 0n, pageSize: 100,
+};
+let space = null, fullSpace = null, poolSpace = null, curV = [], valid = false;
+function rangeVals() { const a = []; for (let v = S.min; v <= S.max; v++) a.push(v); return a; }
+function vals() { return S.pool.length ? [...S.pool].sort((a, b) => a - b) : rangeVals(); }
+
+function applyPreset(name) {
+  S.preset = name;
+  if (name !== "custom") {
+    const p = PRESETS[name];
+    Object.assign(S, { min: p.min, max: p.max, R: p.R, ordered: p.ordered, rep: p.rep, posMode: p.posMode, adic: p.adic, price: p.price });
+    S.req = p.example.slice();
+    S.pos = Array(S.R).fill(null);
+    S.pool = []; S.mode = "req";
+  }
+  S.pageStart = 0n;
+  syncControls();
+  update();
+}
+function markCustom() { if (S.preset !== "custom") S.preset = "custom"; }
+function N() { return S.max - S.min + 1; }
+function pad(v) { const w = String(Math.max(Math.abs(S.max), Math.abs(S.min))).length; return S.max >= 10 && v >= 0 ? String(v).padStart(w, "0") : String(v); }
+
+function normalize() {
+  S.pos.length = S.R; for (let i = 0; i < S.R; i++) if (S.pos[i] === undefined) S.pos[i] = null;
+  S.pool = [...new Set(S.pool.filter((v) => v >= S.min && v <= S.max))];
+  const inUni = (v) => v >= S.min && v <= S.max && (!S.pool.length || S.pool.includes(v));
+  S.req = S.req.filter(inUni);
+  if (S.req.length > S.R) S.req = S.req.slice(0, S.R);
+  S.pos = S.pos.map((v) => (v != null && !inUni(v) ? null : v));
+  if (!S.ordered) S.posMode = false;
+  if (S.ordered || S.rep) S.adic = false;
+  if (S.posMode && !S.rep) { const seen = new Set(); S.pos = S.pos.map((v) => (v == null || seen.has(v) ? null : (seen.add(v), v))); }
+}
+
+function syncControls() {
+  normalize();
+  document.querySelectorAll(".preset").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.preset === S.preset)));
+  $("f-min").value = S.min; $("f-max").value = S.max; $("f-r").value = S.R;
+  $("t-ordered").checked = S.ordered; $("t-rep").checked = S.rep;
+  $("t-pos").checked = S.posMode; $("t-pos").disabled = !S.ordered;
+  $("row-pos").classList.toggle("disabled", !S.ordered);
+  $("t-adic").checked = S.adic; $("t-adic").disabled = S.ordered || S.rep;
+  $("row-adic").classList.toggle("disabled", S.ordered || S.rep);
+  $("f-price").value = S.price;
+  $("price-hint").textContent = S.preset !== "custom" ? PRESETS[S.preset].priceHint : "";
+  renderPicker();
+}
+
+function renderPicker() {
+  const n = N();
+  const showGrid = !S.posMode || S.mode === "pool";
+  $("pick-any").hidden = !showGrid; $("pick-pos").hidden = !S.posMode || S.mode === "pool";
+  document.querySelectorAll("#modes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === S.mode)));
+  document.querySelector('#modes [data-mode="req"]').lastChild.textContent = S.posMode ? "Fijar por posición" : "Debe contener";
+  const grid = $("grid");
+  grid.classList.toggle("has-pool", S.pool.length > 0);
+  if (showGrid) {
+    if (n > MAX_N || n < 1) { grid.innerHTML = ""; }
+    else {
+      const full = S.req.length >= S.R;
+      let h = "";
+      for (let v = S.min; v <= S.max; v++) {
+        const isReq = !S.posMode && S.req.includes(v), inPool = S.pool.includes(v);
+        const pressed = S.mode === "req" ? isReq : inPool;
+        const dis = S.mode === "req" && !isReq && full;
+        h += `<button type="button" class="num${isReq ? " req" : inPool ? " pool" : ""}" data-v="${v}" aria-pressed="${pressed}" ${dis ? "disabled" : ""}>${pad(v)}</button>`;
+      }
+      grid.innerHTML = h;
+    }
+  }
+  if (S.posMode) {
+    let h = "";
+    const taken = new Set(S.pos.filter((v) => v != null));
+    const V = vals();
+    for (let i = 0; i < S.R; i++) {
+      const cur = S.pos[i];
+      let opts = `<option value="">Cualquiera</option>`;
+      if (V.length <= MAX_N) for (const v of V) {
+        const dis = !S.rep && taken.has(v) && v !== cur;
+        opts += `<option value="${v}" ${v === cur ? "selected" : ""} ${dis ? "disabled" : ""}>${pad(v)}</option>`;
+      }
+      h += `<div class="slot"><label for="slot-${i}">Posición ${i + 1}</label><select id="slot-${i}" data-i="${i}" class="${cur != null ? "set" : ""}">${opts}</select></div>`;
+    }
+    $("slots").innerHTML = h;
+  }
+  const kFixed = S.posMode ? S.pos.filter((v) => v != null).length : S.req.length;
+  $("legend").innerHTML =
+    `<span><i class="dot req"></i>${S.posMode ? "Fijos" : "Debe contener"}: <b>${kFixed}</b> de ${S.R}</span>` +
+    `<span><i class="dot pool"></i>Solo usar: <b>${S.pool.length ? S.pool.length + " de " + n : "todos (" + n + ")"}</b></span>` +
+    (S.pool.length ? `<button class="btn sm" type="button" id="b-allpool">Usar todos</button>` : "");
+  let hint;
+  if (S.mode === "pool") hint = S.pool.length
+    ? `Las combinaciones solo usarán estos ${S.pool.length} números.`
+    : "Toca los números con los que quieres jugar, o escribe un rango como 1-10.";
+  else if (S.posMode) hint = "Deja en “Cualquiera” las posiciones libres.";
+  else hint = S.req.length
+    ? (S.rep ? "Cada número marcado aparece al menos una vez." : "Toca un número para quitarlo.")
+    : "Toca números para exigir que aparezcan en cada combinación.";
+  $("pick-hint").textContent = hint;
+}
+
+function showPickMsg(t) { const m = $("pick-msg"); m.textContent = t; m.hidden = !t; }
+
+function validate() {
+  const n = N();
+  if (!Number.isInteger(S.min) || !Number.isInteger(S.max)) return "Escribe el rango con números enteros.";
+  if (n < 1) return "“Hasta” debe ser mayor o igual que “Desde”.";
+  if (n > MAX_N) return `El rango puede tener como máximo ${MAX_N} números (ahora tiene ${n}).`;
+  if (!Number.isInteger(S.R) || S.R < 1 || S.R > MAX_R) return `Las posiciones van de 1 a ${MAX_R}.`;
+  if (!S.rep && S.R > n) return `Sin repetir no caben ${S.R} posiciones en un rango de ${n} números. Activa la repetición o amplía el rango.`;
+  const P = S.pool.length;
+  if (P && !S.rep && S.R > P) return `Con solo ${P} números no se pueden llenar ${S.R} posiciones sin repetir. Marca más números en “Solo usar estos” o activa la repetición.`;
+  return "";
+}
+
+function cfgFor(withFixed, usePool = true) {
+  const V = usePool ? vals() : rangeVals();
+  const ix = new Map(V.map((v, i) => [v, i]));
+  return {
+    N: V.length, R: S.R, ordered: S.ordered, rep: S.rep, posMode: S.posMode, V,
+    req: withFixed ? S.req.filter((v) => ix.has(v)).map((v) => ix.get(v)) : [],
+    pos: withFixed ? S.pos.map((v) => (v == null || !ix.has(v) ? null : ix.get(v))) : Array(S.R).fill(null),
+  };
+}
+
+function oneIn(total, part) {
+  if (part === 0n) return "—";
+  const x = (total * 100n) / part;
+  const ent = x / 100n, dec = x % 100n;
+  if (ent >= 100n || dec === 0n) return "1 en " + fmt((total + part / 2n) / part);
+  return "1 en " + ent.toLocaleString("es-MX") + "." + String(dec).padStart(2, "0");
+}
+function pct(part, total) {
+  if (total === 0n) return "0 %";
+  const x = Number((part * 10n ** 12n) / total) / 1e10;
+  if (x === 0) return "< 0.0000000001 %";
+  if (x >= 1) return x.toLocaleString("es-MX", { maximumFractionDigits: 2 }) + " %";
+  return x.toLocaleString("es-MX", { maximumSignificantDigits: 3 }) + " %";
+}
+function money(count) {
+  const cents = BigInt(Math.round((Number(S.price) || 0) * 100)) * count;
+  const ent = cents / 100n, dec = cents % 100n;
+  return "$" + ent.toLocaleString("es-MX") + (dec ? "." + String(dec).padStart(2, "0") : "");
+}
+
+function formulaText(sp) {
+  const n = curV.length, R = S.R;
+  if (!S.ordered && !S.rep) { const K = sp.K; return `<span class="lbl">Fórmula:</span> C(N−K, R−K) = C(${n - K}, ${R - K}) = ${fmt(sp.total)}`; }
+  if (!S.ordered && S.rep) { const K = sp.K, f = R - K; return `<span class="lbl">Fórmula (multiconjuntos):</span> C(N+R−K−1, R−K) = C(${n + f - 1}, ${f}) = ${fmt(sp.total)}`; }
+  if (S.posMode) {
+    const f = R - S.pos.filter((v) => v != null).length;
+    if (S.rep) return `<span class="lbl">Fórmula:</span> N^libres = ${n}^${f} = ${fmt(sp.total)}`;
+    return `<span class="lbl">Fórmula:</span> P(N−K, libres) = P(${n - sp.KF}, ${f}) = ${fmt(sp.total)}`;
+  }
+  if (S.rep) { const K = sp.K; return `<span class="lbl">Fórmula (inclusión-exclusión):</span> Σ (−1)ʲ·C(${K}, j)·(${n}−j)^${R} = ${fmt(sp.total)}`; }
+  const K = sp.K; return `<span class="lbl">Fórmula:</span> C(N−K, R−K) × R! = C(${n - K}, ${R - K}) × ${R}! = ${fmt(sp.total)}`;
+}
+
+function update() {
+  normalize();
+  const err = validate();
+  $("err").textContent = err; $("err").hidden = !err;
+  valid = !err;
+  if (!valid) {
+    space = fullSpace = poolSpace = null;
+    ["big", "s-p1", "s-pall", "s-cost", "s-costall"].forEach((id) => ($(id).textContent = "—"));
+    ["hero-sub", "s-pall-s", "s-cost-s", "s-costall-s"].forEach((id) => ($(id).textContent = ""));
+    $("formula").innerHTML = ""; $("prizes").innerHTML = ""; $("prz-note").textContent = ""; $("list").innerHTML = "";
+    $("p-info").textContent = "";
+    return;
+  }
+  curV = vals();
+  space = Engine.createSpace(cfgFor(true));
+  fullSpace = Engine.createSpace(cfgFor(false, false));
+  poolSpace = S.pool.length ? Engine.createSpace(cfgFor(false, true)) : null;
+  const M = space.total, T = fullSpace.total;
+  const fixedCount = S.posMode ? S.pos.filter((v) => v != null).length : S.req.length;
+  const P = S.pool.length;
+  $("hero-kicker").textContent = P && fixedCount ? `Combinaciones con tus ${P} números que incluyen los fijos`
+    : P ? `Combinaciones usando solo tus ${P} números`
+    : fixedCount ? "Combinaciones que contienen tus números" : "Combinaciones posibles (sin números fijos)";
+  $("big").textContent = fmt(M);
+  let sub = P || fixedCount
+    ? `de <b>${fmt(T)}</b> combinaciones del sorteo · ${pct(M, T)} del total`
+    : `Marca números del boleto para ver cuántas jugadas los incluyen, o elige con cuáles jugar en “Solo usar estos”.`;
+  if (P && fixedCount) sub += `<br>Con tus ${P} números hay <b>${fmt(poolSpace.total)}</b> en total; ${fmt(M)} incluyen los fijos.`;
+  $("hero-sub").innerHTML = sub;
+  $("formula").innerHTML = (P ? `<span class="lbl">N = tus ${P} números · </span>` : "") + formulaText(space);
+  $("s-p1").textContent = oneIn(T, 1n);
+  $("s-pall").textContent = M > 0n ? oneIn(T, M) : "—";
+  $("s-pall-s").textContent = M > 0n ? `jugando ${fmt(M)} boletos distintos` : "";
+  $("s-cost").textContent = money(M);
+  $("s-cost-s").textContent = `${fmt(M)} × $${S.price || 0}`;
+  $("s-costall").textContent = money(T);
+  $("s-costall-s").textContent = `${fmt(T)} × $${S.price || 0}`;
+  renderPrizes();
+  if (S.pageStart >= M) S.pageStart = 0n;
+  renderList();
+}
+
+/* ---------- Premios secundarios ---------- */
+function prizeRows() {
+  const { C, P, powB } = Engine;
+  const n = N(), R = S.R;
+  if (!S.ordered && !S.rep) {
+    const den = C(n, R), rows = [];
+    for (let k = R; k >= 0; k--) {
+      if (S.adic) {
+        const w = C(R, k) * C(n - R - 1, R - k - 1), wo = C(R, k) * C(n - R - 1, R - k);
+        if (w > 0n) rows.push({ label: `${k} + adicional`, num: w, den, k });
+        rows.push({ label: `${k} aciertos`, num: wo, den, k });
+      } else rows.push({ label: `${k} aciertos`, num: C(R, k) * C(n - R, R - k), den, k });
+    }
+    return {
+      rows, aux: `boleto de ${R} contra un sorteo de ${R} de ${n}`,
+      note: S.adic
+        ? "El adicional se extrae de los números que no salieron. Las categorías que pagan y sus montos dependen de las reglas vigentes del sorteo."
+        : "Probabilidad de atinar exactamente k números con un boleto. Qué categorías pagan depende de las reglas del sorteo.",
+    };
+  }
+  if (S.ordered) {
+    const den = S.rep ? powB(n, R) : P(n, R), rows = [];
+    for (let k = R; k >= 0; k--) {
+      let num;
+      if (S.rep) num = C(R, k) * powB(n - 1, R - k);
+      else { num = 0n; const f = R - k; for (let i = 0; i <= f; i++) { const t = C(f, i) * P(n - k - i, f - i); num += i % 2 ? -t : t; } num *= C(R, k); }
+      rows.push({ label: `${k} en su lugar`, num, den, k });
+    }
+    const tramos = [];
+    for (let k = R - 1; k >= 1; k--) tramos.push({ label: `Últimos ${k} en orden`, num: 1n, den: S.rep ? powB(n, k) : P(n, k), k: -1 });
+    if (R >= 3) { tramos.push({ label: `Primeros 2 en orden`, num: 1n, den: S.rep ? powB(n, 2) : P(n, 2), k: -1 }); tramos.push({ label: `Primero en su lugar`, num: 1n, den: BigInt(n), k: -1 }); }
+    return {
+      rows, tramos, aux: `posiciones exactas de ${R}`,
+      note: S.preset === "tris"
+        ? "En Tris se premian tramos en orden: Directo 5, 4 y 3, Par y Número. Revisa en Lotería Nacional cuáles aplican a tu jugada y cuánto pagan."
+        : "Coincidencias exactas por posición contra un sorteo con las mismas reglas.",
+    };
+  }
+  return { rows: [], aux: "", note: "No aplica: los sorteos sin orden y con repetición no tienen categorías por aciertos estándar." };
+}
+
+function renderPrizes() {
+  const { rows, tramos, aux, note } = prizeRows();
+  $("prz-aux").textContent = aux;
+  $("prz-note").textContent = note;
+  if (!rows.length) { $("prizes").innerHTML = ""; return; }
+  const maxP = rows.reduce((m, r) => { const x = Number((r.num * 10n ** 9n) / r.den) / 1e9; return Math.max(m, x); }, 0) || 1;
+  const row = (r, top) => {
+    const prob = Number((r.num * 10n ** 12n) / r.den) / 1e12;
+    const w = Math.max(0.5, (prob / maxP) * 100);
+    return `<tr class="${top ? "top" : ""}"><td>${r.label}${top ? '<span class="pill">premio mayor</span>' : ""}</td>
+      <td class="num-c r">${r.num === 0n ? "—" : oneIn(r.den, r.num)}</td>
+      <td class="num-c r">${r.num === 0n ? "0 %" : pct(r.num, r.den)}</td>
+      <td class="bar-cell">${r.num === 0n ? "" : `<div class="bar" style="width:${w}%"></div>`}</td></tr>`;
+  };
+  let h = `<table><thead><tr><th>Aciertos</th><th class="r">Probabilidad</th><th class="r">%</th><th></th></tr></thead><tbody>`;
+  rows.forEach((r, i) => (h += row(r, i === 0)));
+  h += `</tbody></table>`;
+  if (tramos && tramos.length) {
+    h += `<table style="margin-top:14px"><thead><tr><th>Tramo</th><th class="r">Probabilidad</th><th class="r">%</th><th></th></tr></thead><tbody>`;
+    tramos.forEach((r) => (h += row(r, false)));
+    h += `</tbody></table>`;
+  }
+  $("prizes").innerHTML = h;
+}
+
+/* ---------- Listado ---------- */
+function renderList() {
+  const M = space.total;
+  const list = $("list");
+  if (M === 0n) {
+    list.innerHTML = `<p class="hint">No hay combinaciones con estas reglas.</p>`;
+    $("p-info").textContent = "0 de 0";
+    ["p-first", "p-prev", "p-next", "p-last"].forEach((id) => ($(id).disabled = true));
+    return;
+  }
+  const size = BigInt(S.pageSize);
+  const start = S.pageStart;
+  const fixedSet = new Set(S.req);
+  const sg = seenGames();
+  let h = "", i = start, seenCount = 0;
+  for (const combo of space.iterate(start)) {
+    if (i >= start + size) break;
+    let balls = "";
+    const values = combo.map((ix) => curV[ix]);
+    values.forEach((v, q) => {
+      const fx = S.posMode ? S.pos[q] === v : fixedSet.has(v);
+      balls += `<span class="ball${fx ? " fx" : ""}">${pad(v)}</span>`;
+    });
+    let seen = "";
+    const hit = sg.length ? seenFor(values, sg) : null;
+    if (hit) {
+      seenCount++;
+      const last = hit.e[0];
+      seen = `<span class="seen" title="${hit.e.map((r) => GAMES[hit.g].name + " #" + r[0] + " (" + fdate(r[1]) + ")").join(", ")}">Salió · ${GAMES[hit.g].name} #${last[0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>`;
+    }
+    h += `<div class="combo"><span class="idx">#${(i + 1n).toLocaleString("es-MX")}</span><span class="balls">${balls}</span>${seen}</div>`;
+    i++;
+  }
+  list.innerHTML = h;
+  const ln = $("list-note");
+  ln.hidden = !sg.length || !rowsOf(sg[0]).length;
+  ln.textContent = sg.length ? `«Salió» marca las combinaciones que ya ganaron en ${sg.map((g) => GAMES[g].name).join(", ")}. En esta página: ${seenCount}.` : "";
+  const end = start + size > M ? M : start + size;
+  const page = start / size + 1n, pages = (M + size - 1n) / size;
+  $("p-info").textContent = `#${fmt(start + 1n)}–${fmt(end)} de ${fmt(M)} · pág. ${fmt(page)}/${fmt(pages)}`;
+  $("p-first").disabled = $("p-prev").disabled = start === 0n;
+  $("p-next").disabled = $("p-last").disabled = end >= M;
+}
+
+function parseBig(str) {
+  const s = String(str).replace(/[\s,._]/g, "");
+  return /^\d+$/.test(s) ? BigInt(s) : null;
+}
+
+/* ---------- Exportar ---------- */
+let exporting = false;
+async function exportCsv() {
+  if (!valid || exporting) return;
+  const st = $("ex-status");
+  const M = space.total;
+  const from = parseBig($("f-exstart").value);
+  const limit = parseInt($("f-exlimit").value, 10);
+  if (from == null || from < 1n || from > M) { st.textContent = `Escribe un número de inicio entre 1 y ${fmt(M)}.`; return; }
+  if (!Number.isFinite(limit) || limit < 1) { st.textContent = "Escribe cuántas combinaciones quieres exportar."; return; }
+  const cap = Math.min(limit, 2000000);
+  exporting = true; $("b-export").disabled = true;
+  const cfg = cfgFor(true), V = cfg.V;
+  const sp = Engine.createSpace(cfg);
+  const head = ["n", ...Array.from({ length: S.R }, (_, i) => "pos" + (i + 1))].join(",");
+  const parts = [head + "\n"];
+  let i = from - 1n, done = 0, buf = "";
+  const it = sp.iterate(from - 1n);
+  try {
+    while (done < cap) {
+      const r = it.next();
+      if (r.done) break;
+      buf += (i + 1n).toString() + "," + r.value.map((ix) => V[ix]).join(",") + "\n";
+      i++; done++;
+      if (done % 5000 === 0) {
+        parts.push(buf); buf = "";
+        st.textContent = `Generando… ${done.toLocaleString("es-MX")} de ${Math.min(cap, Number(M - from + 1n)).toLocaleString("es-MX")}`;
+        await new Promise((res) => setTimeout(res, 0));
+      }
+    }
+    parts.push(buf);
+    const name = `combinaciones-${S.preset}-${S.R}de${V.length}${S.pool.length ? "-solo-mis-numeros" : ""}-${done}.csv`;
+    const blob = new Blob(parts, { type: "text/csv" });
+    st.textContent = `Listo: ${done.toLocaleString("es-MX")} combinaciones. Guardando…`;
+    await saveFile(name, blob, st, done);
+  } catch (e) {
+    st.textContent = "No se pudo generar el archivo: " + (e && e.message ? e.message : e);
+  } finally {
+    exporting = false; $("b-export").disabled = false;
+  }
+}
+async function saveFile(name, blob, st, done) {
+  const inViewer = !!(window.claude && typeof window.claude.use === "function");
+  if (inViewer) {
+    let dl = null;
+    try { dl = await window.claude.use("downloads"); } catch (e) { dl = null; }
+    if (!dl) { st.textContent = "Este visor no permite descargar archivos. Abre la página desde el archivo local para exportar."; return; }
+    try { await dl.save({ filename: name, data: blob }); st.textContent = `Guardado: ${name} (${done.toLocaleString("es-MX")} filas).`; }
+    catch (e) {
+      const code = e && e.code;
+      st.textContent = code === "declined" ? "Descarga cancelada." : code === "rate_limited" ? "Hay otra descarga pendiente; intenta en un momento." : "No se pudo guardar el archivo (" + (code || "error") + ").";
+    }
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  st.textContent = `Guardado: ${name} (${done.toLocaleString("es-MX")} filas).`;
+}
+
+/* ---------- Eventos de la calculadora ---------- */
+$("presets").addEventListener("click", (e) => { const b = e.target.closest(".preset"); if (b) { showPickMsg(""); applyPreset(b.dataset.preset); } });
+function onRule(fn) { return () => { fn(); markCustom(); S.pageStart = 0n; syncControls(); update(); }; }
+$("f-min").addEventListener("change", onRule(() => (S.min = parseInt($("f-min").value, 10))));
+$("f-max").addEventListener("change", onRule(() => (S.max = parseInt($("f-max").value, 10))));
+$("f-r").addEventListener("change", onRule(() => (S.R = Math.max(1, Math.min(MAX_R, parseInt($("f-r").value, 10) || 1)))));
+$("r-dec").addEventListener("click", onRule(() => (S.R = Math.max(1, S.R - 1))));
+$("r-inc").addEventListener("click", onRule(() => (S.R = Math.min(MAX_R, S.R + 1))));
+$("t-ordered").addEventListener("change", onRule(() => (S.ordered = $("t-ordered").checked)));
+$("t-rep").addEventListener("change", onRule(() => (S.rep = $("t-rep").checked)));
+$("t-pos").addEventListener("change", () => {
+  S.posMode = $("t-pos").checked;
+  if (S.posMode) { S.pos = Array(S.R).fill(null); S.req.slice(0, S.R).forEach((v, i) => (S.pos[i] = v)); }
+  else { S.req = [...new Set(S.pos.filter((v) => v != null))]; }
+  markCustom(); S.pageStart = 0n; syncControls(); update();
+});
+$("t-adic").addEventListener("change", () => { S.adic = $("t-adic").checked; markCustom(); syncControls(); update(); });
+$("f-price").addEventListener("input", () => { S.price = parseFloat($("f-price").value) || 0; if (valid) update(); });
+
+$("grid").addEventListener("click", (e) => {
+  const b = e.target.closest(".num"); if (!b) return;
+  const v = Number(b.dataset.v);
+  if (S.mode === "pool") {
+    const i = S.pool.indexOf(v);
+    if (i >= 0) { S.pool.splice(i, 1); S.req = S.req.filter((x) => x !== v); S.pos = S.pos.map((x) => (x === v ? null : x)); }
+    else S.pool.push(v);
+  } else {
+    const i = S.req.indexOf(v);
+    if (i >= 0) S.req.splice(i, 1);
+    else if (S.req.length < S.R) { S.req.push(v); if (S.pool.length && !S.pool.includes(v)) S.pool.push(v); }
+  }
+  showPickMsg(""); S.pageStart = 0n; renderPicker(); update();
+});
+function parseTyped(txt) {
+  const nums = [], re = /(\d+)\s*(?:-|–|a)\s*(\d+)|(\d+)/g;
+  let m, tooBig = false;
+  while ((m = re.exec(txt))) {
+    if (m[3] !== undefined) { nums.push(Number(m[3])); continue; }
+    let a = Number(m[1]), b = Number(m[2]);
+    if (a > b) [a, b] = [b, a];
+    if (b - a > MAX_N) { tooBig = true; continue; }
+    for (let v = a; v <= b; v++) nums.push(v);
+  }
+  return { nums, tooBig };
+}
+function markTyped() {
+  const { nums, tooBig } = parseTyped($("f-type").value);
+  const out = [], bad = [];
+  for (const v of nums) { if (v < S.min || v > S.max) { if (!bad.includes(v)) bad.push(v); } else if (!out.includes(v)) out.push(v); }
+  let msg = "";
+  if (S.mode === "pool") {
+    out.forEach((v) => { if (!S.pool.includes(v)) S.pool.push(v); });
+  } else {
+    const fresh = out.filter((v) => !S.req.includes(v));
+    const add = fresh.slice(0, Math.max(0, S.R - S.req.length));
+    S.req.push(...add);
+    if (S.pool.length) add.forEach((v) => { if (!S.pool.includes(v)) S.pool.push(v); });
+    if (fresh.length > add.length) msg += `Solo caben ${S.R} números fijos; no se marcaron: ${fresh.slice(add.length).join(", ")}. `;
+  }
+  if (bad.length) msg += `Fuera del rango ${S.min}–${S.max}: ${bad.slice(0, 12).join(", ")}${bad.length > 12 ? "…" : ""}. `;
+  if (tooBig) msg += "Un rango era demasiado grande y se ignoró.";
+  showPickMsg(msg.trim());
+  $("f-type").value = ""; S.pageStart = 0n; renderPicker(); update();
+}
+$("modes").addEventListener("click", (e) => { const b = e.target.closest("button[data-mode]"); if (!b) return; S.mode = b.dataset.mode; showPickMsg(""); renderPicker(); });
+$("legend").addEventListener("click", (e) => { if (e.target.id === "b-allpool") { S.pool = []; S.pageStart = 0n; renderPicker(); update(); } });
+$("b-type").addEventListener("click", markTyped);
+$("f-type").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); markTyped(); } });
+$("slots").addEventListener("change", (e) => {
+  const s = e.target.closest("select"); if (!s) return;
+  S.pos[Number(s.dataset.i)] = s.value === "" ? null : Number(s.value);
+  S.pageStart = 0n; renderPicker(); update();
+});
+$("b-clear").addEventListener("click", () => { S.req = []; S.pool = []; S.pos = Array(S.R).fill(null); showPickMsg(""); S.pageStart = 0n; renderPicker(); update(); });
+
+function go(start) { if (!space) return; const M = space.total; if (start < 0n) start = 0n; if (start >= M) start = M - 1n; const size = BigInt(S.pageSize); S.pageStart = (start / size) * size; renderList(); }
+$("p-first").addEventListener("click", () => go(0n));
+$("p-prev").addEventListener("click", () => go(S.pageStart - BigInt(S.pageSize)));
+$("p-next").addEventListener("click", () => go(S.pageStart + BigInt(S.pageSize)));
+$("p-last").addEventListener("click", () => go(space ? space.total - 1n : 0n));
+function jump() {
+  const n = parseBig($("f-jump").value);
+  if (n == null || !space || n < 1n || n > space.total) { $("f-jump").setCustomValidity("Fuera de rango"); $("f-jump").reportValidity(); return; }
+  $("f-jump").setCustomValidity("");
+  go(n - 1n);
+  $("f-exstart").value = n.toString();
+}
+$("b-jump").addEventListener("click", jump);
+$("f-jump").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); jump(); } });
+$("f-jump").addEventListener("input", () => $("f-jump").setCustomValidity(""));
+$("f-psize").addEventListener("change", () => { S.pageSize = parseInt($("f-psize").value, 10); go(S.pageStart); });
+$("b-export").addEventListener("click", exportCsv);
+
+/* ---------- Histórico ---------- */
+// Cada fila: [concurso, fechaAAAAMMDD, n1..nk, (adicional), (bolsa)]
+const GAMES = {
+  melate:     { name: "Melate",     k: 6, adic: true,  bolsa: true },
+  revancha:   { name: "Revancha",   k: 6, adic: false, bolsa: true },
+  revanchita: { name: "Revanchita", k: 6, adic: false, bolsa: true },
+  chispazo:   { name: "Chispazo",   k: 5, adic: false, bolsa: false },
+  tris:       { name: "Tris",       k: 5, adic: false, bolsa: false, digits: true },
+};
+const H = { game: "melate", period: "y1", page: 0, size: 25 };
+let HIST = null;
+function loadHist() {
+  if (HIST) return HIST;
+  try { HIST = JSON.parse($("hist-data").textContent); } catch (e) { HIST = { updated: null, games: {} }; }
+  return HIST;
+}
+let EMBED_UPDATED = null;
+function resetHist() { HIST = null; loadHist(); }
+const rowsOf = (g) => (loadHist().games[g] || []);
+const numsOf = (r, g) => r.slice(2, 2 + GAMES[g].k).filter((x) => x != null);
+const adicOf = (r, g) => (GAMES[g].adic ? r[2 + GAMES[g].k] : null);
+// Antes de 1993 las bolsas venían en pesos anteriores: se convierten a pesos actuales (÷1000)
+const bolsaOf = (r, g) => {
+  if (!GAMES[g].bolsa) return null;
+  const b = r[2 + GAMES[g].k + (GAMES[g].adic ? 1 : 0)];
+  return b && r[1] < 19930101 ? b / 1000 : b;
+};
+const TOTAL_COMB = { melate: 32468436, revancha: 32468436, revanchita: 32468436, chispazo: 98280, tris: 100000 };
+const REP = {};
+function comboKey(nums, g) { return (GAMES[g].digits ? nums : [...nums].sort((a, b) => a - b)).join("-"); }
+function repeatsOf(g) {
+  if (REP[g]) return REP[g];
+  const G = GAMES[g], map = new Map();
+  let n = 0;
+  for (const r of rowsOf(g)) {
+    const nums = r.slice(2, 2 + G.k);
+    if (nums.some((x) => x == null)) continue;
+    n++;
+    const key = comboKey(nums, g);
+    let e = map.get(key);
+    if (!e) { e = []; map.set(key, e); }
+    e.push(r);
+  }
+  const list = [...map.values()].filter((e) => e.length > 1);
+  let pairs = 0, seg = 0;
+  for (const e of list) {
+    pairs += (e.length * (e.length - 1)) / 2;
+    const c = e.map((r) => r[0]).sort((a, b) => a - b);
+    for (let i = 1; i < c.length; i++) if (c[i] - c[i - 1] === 1) { seg++; e.consec = true; }
+  }
+  list.sort((a, b) => (b.consec ? 1 : 0) - (a.consec ? 1 : 0) || b[0][0] - a[0][0]);
+  return (REP[g] = { list, pairs, seg, n, map });
+}
+// Para la calculadora: qué sorteos del histórico usan exactamente las reglas actuales
+function seenGames() {
+  if (!S.ordered && !S.rep && S.R === 6 && S.min === 1 && S.max === 56) return ["melate", "revancha", "revanchita"];
+  if (!S.ordered && !S.rep && S.R === 5 && S.min === 1 && S.max === 28) return ["chispazo"];
+  if (S.ordered && S.rep && S.R === 5 && S.min === 0 && S.max === 9) return ["tris"];
+  return [];
+}
+function seenFor(values, games) {
+  for (const g of games) {
+    const e = repeatsOf(g).map.get(comboKey(values, g));
+    if (e) return { g, e };
+  }
+  return null;
+}
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+function fdate(d) { const y = Math.floor(d / 10000), m = Math.floor(d / 100) % 100, dd = d % 100; return `${dd} ${MESES[m - 1]} ${y}`; }
+function hpad(v, g) { return GAMES[g].digits ? String(v) : String(v).padStart(2, "0"); }
+function pesos(n) { return "$" + Math.round(n).toLocaleString("es-MX"); }
+function pesosCorto(n) { return n >= 1e6 ? "$" + (n / 1e6).toLocaleString("es-MX", { maximumFractionDigits: 1 }) + " millones" : pesos(n); }
+function ballsHtml(r, g, hl, lg) {
+  let h = numsOf(r, g).map((v) => `<span class="ball${lg ? " lg" : ""}${hl && hl.has(v) ? " fx" : ""}">${hpad(v, g)}</span>`).join("");
+  const a = adicOf(r, g);
+  if (a != null) h += `<span class="ball ad${lg ? " lg" : ""}" title="Adicional">${hpad(a, g)}</span>`;
+  return h;
+}
+function periodRows(g) {
+  const rows = rowsOf(g);
+  if (!rows.length) return rows;
+  if (H.period === "n100") return rows.slice(0, 100);
+  if (H.period === "all") return rows;
+  const last = rows[0][1], years = H.period === "y1" ? 1 : 5;
+  const cut = last - years * 10000;
+  return rows.filter((r) => r[1] > cut);
+}
+function sideCard() {
+  const rows = rowsOf("melate");
+  if (!rows.length) return;
+  $("side-card").hidden = false;
+  $("side-balls").innerHTML = ballsHtml(rows[0], "melate");
+  $("side-date").textContent = `Concurso ${rows[0][0]} · ${fdate(rows[0][1])}`;
+}
+
+function renderHist() {
+  const g = H.game, G = GAMES[g], rows = rowsOf(g);
+  document.querySelectorAll("#h-games button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.game === g)));
+  const has = rows.length > 0;
+  $("h-empty").hidden = has;
+  $("h-updated").textContent = loadHist().updated ? `Datos al ${loadHist().updated}` : "";
+  if (!has) { $("h-cards").hidden = true; return; }
+  $("h-cards").hidden = false;
+  // Tarjetas
+  const last = rows[0];
+  $("h-last-k").textContent = `Último sorteo · Concurso ${last[0]}`;
+  $("h-last-balls").innerHTML = ballsHtml(last, g, null, true);
+  $("h-last-s").textContent = fdate(last[1]) + (G.bolsa && bolsaOf(last, g) ? ` · Bolsa ${pesosCorto(bolsaOf(last, g))}` : "") + (G.adic ? " · el último es el adicional" : "");
+  $("h-count").textContent = rows.length.toLocaleString("es-MX");
+  $("h-count-s").textContent = `desde el ${fdate(rows[rows.length - 1][1])}`;
+  if (G.bolsa) {
+    let best = rows[0];
+    for (const r of rows) if ((bolsaOf(r, g) || 0) > (bolsaOf(best, g) || 0)) best = r;
+    $("h-third-k").textContent = "Bolsa más alta registrada";
+    $("h-third").textContent = pesosCorto(bolsaOf(best, g));
+    $("h-third-s").textContent = `Concurso ${best[0]} · ${fdate(best[1])}`;
+  } else {
+    const byDay = new Map();
+    for (const r of rows.slice(0, 400)) byDay.set(r[1], (byDay.get(r[1]) || 0) + 1);
+    const perDay = Math.max(...byDay.values());
+    $("h-third-k").textContent = "Sorteos por día";
+    $("h-third").textContent = `Hasta ${perDay}`;
+    $("h-third-s").textContent = `según los últimos ${Math.min(400, rows.length)} sorteos`;
+  }
+  renderFreq();
+  renderHistTable();
+  repShown = 12;
+  renderRepeats();
+}
+
+let repShown = 12;
+function renderRepeats() {
+  const g = H.game, G = GAMES[g], R = repeatsOf(g);
+  const exp = (R.n * (R.n - 1)) / 2 / TOTAL_COMB[g];
+  $("r-aux").textContent = `en ${R.n.toLocaleString("es-MX")} sorteos completos`;
+  $("r-n").textContent = R.list.length.toLocaleString("es-MX");
+  const maxT = Math.max(0, ...R.list.map((e) => e.length));
+  $("r-n-s").textContent = R.list.length ? `la que más: ${maxT} veces` : "ninguna se ha repetido";
+  $("r-obs").textContent = R.pairs.toLocaleString("es-MX");
+  $("r-exp").textContent = exp < 10 ? exp.toLocaleString("es-MX", { maximumFractionDigits: 2 }) : Math.round(exp).toLocaleString("es-MX");
+  $("r-exp-s").textContent = `con ${TOTAL_COMB[g].toLocaleString("es-MX")} combinaciones posibles` + (["melate", "revancha", "revanchita"].includes(g) ? " (rango actual 1–56)" : "");
+  $("r-seg").textContent = R.seg.toLocaleString("es-MX");
+  let h = "";
+  for (const e of R.list.slice(0, repShown)) {
+    const sorted = [...e].sort((a, b) => a[0] - b[0]);
+    const segSet = new Set();
+    for (let i = 1; i < sorted.length; i++) if (sorted[i][0] - sorted[i - 1][0] === 1) { segSet.add(sorted[i][0]); segSet.add(sorted[i - 1][0]); }
+    const nums = e[0].slice(2, 2 + G.k);
+    const balls = (G.digits ? nums : [...nums].sort((a, b) => a - b)).map((v) => `<span class="ball">${hpad(v, g)}</span>`).join("");
+    const tags = e.map((r) => `<span class="tag${segSet.has(r[0]) ? " seg" : ""}">#${r[0]} · ${fdate(r[1])}</span>`).join("");
+    h += `<div class="rep-row"><div class="balls">${balls}</div><span class="tag times">${e.length} veces</span><div class="when">${tags}</div></div>`;
+  }
+  $("r-list").innerHTML = h || `<p class="hint">Ninguna combinación ganadora de ${G.name} se ha repetido.</p>`;
+  $("r-more").hidden = repShown >= R.list.length;
+  let note = R.list.length ? `Mostrando ${Math.min(repShown, R.list.length)} de ${R.list.length}${R.seg ? "; primero las de concursos seguidos y luego" : ","} de la más reciente a la más antigua.` : "";
+  if (R.seg) note += " En rosa: sorteos consecutivos.";
+  if (["melate", "revancha", "revanchita"].includes(g)) {
+    const others = ["melate", "revancha", "revanchita"].filter((x) => x !== g);
+    const cross = [];
+    for (const r of rowsOf(g)) {
+      const k = comboKey(r.slice(2, 8), g);
+      for (const o of others) { const e = repeatsOf(o).map.get(k); if (e) cross.push(`${G.name} #${r[0]} = ${GAMES[o].name} #${e.map((x) => x[0]).join("/")}`); }
+    }
+    if (cross.length) note += ` Entre urnas: ${cross.join("; ")}.`;
+  }
+  if (G.digits) note += " En Tris se comparan los 5 dígitos en orden; los sorteos antiguos de 4 dígitos no cuentan.";
+  $("r-note").textContent = note.trim();
+}
+$("r-more").addEventListener("click", () => { repShown += 24; renderRepeats(); });
+
+function renderRules() {
+  const parts = ["melate", "chispazo", "tris"].map((g) => {
+    const R = repeatsOf(g);
+    if (!R.n) return null;
+    let t = `${GAMES[g].name}: ${R.list.length.toLocaleString("es-MX")} combinaciones repetidas`;
+    if (g === "melate" && R.list[0]) {
+      const e = R.list[0];
+      t = `Melate: ${R.list.length === 1 ? "1 combinación" : R.list.length + " combinaciones"} (${[...e[0].slice(2, 8)].sort((a, b) => a - b).join("-")}, concursos ${e.map((r) => r[0]).sort((a, b) => a - b).join(" y ")})`;
+    }
+    if (R.seg) t += `, ${R.seg} en concursos seguidos`;
+    return t;
+  }).filter(Boolean);
+  $("faq-data").textContent = parts.length
+    ? `El histórico oficial muestra repeticiones reales. ${parts.join(" · ")}. La cantidad coincide con lo que se espera por puro azar.`
+    : "El histórico no está cargado en esta copia.";
+}
+
+function renderFreq() {
+  const g = H.game, G = GAMES[g], rows = periodRows(g);
+  const cnt = new Map();
+  let lo = Infinity, hi = -Infinity;
+  for (const r of rows) for (const v of numsOf(r, g)) { cnt.set(v, (cnt.get(v) || 0) + 1); if (v < lo) lo = v; if (v > hi) hi = v; }
+  if (G.digits) { lo = 0; hi = 9; } else lo = Math.min(lo, 1);
+  const list = [];
+  for (let v = lo; v <= hi; v++) list.push([v, cnt.get(v) || 0]);
+  const max = Math.max(1, ...list.map((x) => x[1]));
+  const sorted = [...list].sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+  const nHot = G.digits ? 3 : 6;
+  const hot = new Set(sorted.slice(0, nHot).map((x) => x[0]));
+  const cold = new Set(sorted.slice(-nHot).map((x) => x[0]));
+  const fq = $("h-freq");
+  fq.style.gridTemplateColumns = `repeat(${list.length}, minmax(16px, 1fr))`;
+  fq.style.minWidth = list.length * 19 + "px";
+  fq.innerHTML = list.map(([v, c]) => `<div class="fcol${hot.has(v) ? " hot" : cold.has(v) ? " cold" : ""}" title="${hpad(v, g)}: ${c} veces"><div class="fbar" style="height:${Math.max(2, (c / max) * 150)}px"></div><span class="flab">${hpad(v, g)}</span></div>`).join("");
+  const b = (arr) => arr.map(([v, c]) => `<span class="ball lg" title="${c} veces">${hpad(v, g)}</span>`).join("");
+  $("h-hot").innerHTML = b(sorted.slice(0, nHot)) + `<span class="hint" style="align-self:center">${sorted.slice(0, nHot).map((x) => x[1]).join(" · ")} veces</span>`;
+  $("h-cold").innerHTML = b(sorted.slice(-nHot).reverse()) + `<span class="hint" style="align-self:center">${sorted.slice(-nHot).reverse().map((x) => x[1]).join(" · ")} veces</span>`;
+  $("f-aux").textContent = `en ${rows.length.toLocaleString("es-MX")} sorteos`;
+  let note = G.adic ? "No incluye el número adicional. " : "";
+  if (g === "melate" && H.period === "all") note += "El rango de Melate cambió con los años (hoy es 1–56), así que los números altos tuvieron menos sorteos para salir. ";
+  if (G.digits) note += "Cuenta cada dígito sin importar su posición. ";
+  $("h-freq-note").textContent = note.trim();
+}
+
+/* Filtros del histórico: un solo estado, editado desde el popup */
+H.f = { mine: [], minHits: 0, conc: null, from: null, to: null };
+const dInt = (s) => (s && /^\d{4}-\d{2}-\d{2}$/.test(s) ? Number(s.replace(/-/g, "")) : null);
+const dStr = (d) => (d ? `${String(d).slice(0, 4)}-${String(d).slice(4, 6)}-${String(d).slice(6, 8)}` : "");
+function filterRows(g, f) {
+  const mineSet = new Set(f.mine);
+  const hitsOf = (r) => { let c = 0; const seen = new Set(); for (const v of numsOf(r, g)) if (mineSet.has(v) && !seen.has(v)) { c++; seen.add(v); } return c; };
+  const res = rowsOf(g).filter((r) =>
+    (f.conc == null || r[0] === f.conc) &&
+    (f.from == null || r[1] >= f.from) &&
+    (f.to == null || r[1] <= f.to) &&
+    (!f.minHits || hitsOf(r) >= f.minHits));
+  return { res, hitsOf, mineSet };
+}
+function activeFilterCount(f) { return (f.from || f.to ? 1 : 0) + (f.mine.length ? 1 : 0) + (f.conc != null ? 1 : 0); }
+function renderChips() {
+  const f = H.f, g = H.game, chips = [];
+  if (f.from || f.to) chips.push({ k: "fecha", t: f.from && f.to ? `${fdate(f.from)} – ${fdate(f.to)}` : f.from ? `Desde ${fdate(f.from)}` : `Hasta ${fdate(f.to)}` });
+  if (f.mine.length) chips.push({ k: "nums", t: `Contiene ${f.mine.map((v) => hpad(v, g)).join(", ")}${f.minHits ? (f.minHits >= Math.min(f.mine.length, GAMES[g].k) ? " (todos)" : ` (${f.minHits}+ aciertos)`) : " (solo resaltar)"}` });
+  if (f.conc != null) chips.push({ k: "conc", t: `Concurso ${f.conc}` });
+  $("h-chips").innerHTML = chips.length
+    ? chips.map((c) => `<span class="chip">${c.t}<button type="button" data-rm="${c.k}" aria-label="Quitar filtro: ${c.t}">×</button></span>`).join("")
+    : `<span class="hint">Sin filtros: se muestran todos los sorteos.</span>`;
+  const n = activeFilterCount(f);
+  $("fab-count").hidden = !n; $("fab-count").textContent = n;
+}
+function syncHistInputs() { renderChips(); }
+
+/* Popup */
+let lastFocus = null;
+function minHitsOptions(mine, cur) {
+  const k = GAMES[H.game].k, max = Math.min(mine.length, k);
+  let opts = `<option value="0">${mine.length ? "Cualquiera (solo resaltar)" : "—"}</option>`;
+  for (let i = 1; i <= max; i++) opts += `<option value="${i}">${i}${i === max ? " (todos)" : " o más"}</option>`;
+  $("m-min").innerHTML = opts;
+  $("m-min").disabled = !mine.length;
+  $("m-min").value = cur != null && cur <= max ? String(cur) : String(max);
+}
+function readModal() {
+  const mine = [...new Set(parseTyped($("m-nums").value).nums)];
+  const conc = parseInt($("m-conc").value.replace(/\D/g, ""), 10);
+  let from = dInt($("m-from").value), to = dInt($("m-to").value);
+  if (from && to && from > to) [from, to] = [to, from];
+  return { mine, minHits: mine.length ? parseInt($("m-min").value, 10) || 0 : 0, conc: Number.isFinite(conc) ? conc : null, from, to };
+}
+function previewModal() {
+  const f = readModal();
+  const n = filterRows(H.game, f).res.length;
+  $("m-preview").textContent = `${n.toLocaleString("es-MX")} sorteos coinciden`;
+}
+function openFilters() {
+  const rows = rowsOf(H.game);
+  if (!rows.length) return;
+  lastFocus = document.activeElement;
+  const f = H.f;
+  $("m-game").textContent = `Sorteo: ${GAMES[H.game].name} · ${fdate(rows[rows.length - 1][1])} a ${fdate(rows[0][1])}`;
+  ["m-from", "m-to"].forEach((id) => { $(id).min = dStr(rows[rows.length - 1][1]); $(id).max = dStr(rows[0][1]); });
+  $("m-from").value = dStr(f.from); $("m-to").value = dStr(f.to);
+  $("m-nums").value = f.mine.join(", ");
+  minHitsOptions(f.mine, f.minHits || null);
+  $("m-conc").value = f.conc ?? "";
+  $("filtros").hidden = false;
+  previewModal();
+  setTimeout(() => $("m-from").focus(), 30);
+}
+function closeFilters() {
+  $("filtros").hidden = true;
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+function applyFilters(f) {
+  H.f = f; H.page = 0;
+  renderChips(); renderHistTable();
+}
+$("fab-filtros").addEventListener("click", openFilters);
+$("h-open-filters").addEventListener("click", openFilters);
+$("filtros").addEventListener("click", (e) => { if (e.target.closest("[data-close]")) closeFilters(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("filtros").hidden) closeFilters(); });
+$("m-nums").addEventListener("input", () => { const mine = [...new Set(parseTyped($("m-nums").value).nums)]; minHitsOptions(mine, null); previewModal(); });
+["m-from", "m-to", "m-conc", "m-min"].forEach((id) => $(id).addEventListener("input", previewModal));
+$("m-min").addEventListener("change", previewModal);
+$("m-quick").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-q]"); if (!b) return;
+  const rows = rowsOf(H.game); if (!rows.length) return;
+  const last = rows[0][1];
+  const lastDate = new Date(Math.floor(last / 10000), (Math.floor(last / 100) % 100) - 1, last % 100);
+  const toInt = (dt) => dt.getFullYear() * 10000 + (dt.getMonth() + 1) * 100 + dt.getDate();
+  let from = null, to = null;
+  if (b.dataset.q === "30" || b.dataset.q === "365") { const d = new Date(lastDate); d.setDate(d.getDate() - Number(b.dataset.q) + 1); from = toInt(d); to = last; }
+  else if (b.dataset.q === "year") { from = Math.floor(last / 10000) * 10000 + 101; to = last; }
+  $("m-from").value = dStr(from); $("m-to").value = dStr(to);
+  previewModal();
+});
+$("m-clear").addEventListener("click", () => {
+  $("m-from").value = ""; $("m-to").value = ""; $("m-nums").value = ""; $("m-conc").value = "";
+  minHitsOptions([], null); previewModal();
+});
+$("m-apply").addEventListener("click", () => {
+  applyFilters(readModal());
+  closeFilters();
+  $("h-results").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("h-chips").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-rm]"); if (!b) return;
+  const f = { ...H.f };
+  if (b.dataset.rm === "fecha") { f.from = null; f.to = null; }
+  if (b.dataset.rm === "nums") { f.mine = []; f.minHits = 0; }
+  if (b.dataset.rm === "conc") f.conc = null;
+  applyFilters(f);
+});
+
+function renderHistTable() {
+  const g = H.game, G = GAMES[g], rows = rowsOf(g);
+  const f = H.f;
+  const { res, hitsOf, mineSet } = filterRows(g, f);
+  const pages = Math.max(1, Math.ceil(res.length / H.size));
+  if (H.page >= pages) H.page = pages - 1;
+  const slice = res.slice(H.page * H.size, (H.page + 1) * H.size);
+  let h = `<table><thead><tr><th>Concurso</th><th>Fecha</th><th>Números${G.adic ? " + adicional" : ""}</th>${f.mine.length ? '<th class="r">Aciertos</th>' : ""}${G.bolsa ? '<th class="r">Bolsa</th>' : ""}</tr></thead><tbody>`;
+  for (const r of slice) {
+    const b = bolsaOf(r, g);
+    h += `<tr><td class="num-c">${r[0]}</td><td>${fdate(r[1])}</td><td><div class="balls">${ballsHtml(r, g, mineSet)}</div></td>${f.mine.length ? `<td class="r hits">${hitsOf(r)}</td>` : ""}${G.bolsa ? `<td class="r num-c">${b ? pesos(b) : "—"}</td>` : ""}</tr>`;
+  }
+  if (!slice.length) h += `<tr><td colspan="5" class="hint">Ningún sorteo cumple esos filtros.</td></tr>`;
+  h += `</tbody></table>`;
+  $("h-table").innerHTML = h;
+  $("h-res-aux").textContent = `${res.length.toLocaleString("es-MX")} de ${rows.length.toLocaleString("es-MX")} sorteos`;
+  $("h-info").textContent = res.length ? `Página ${H.page + 1} de ${pages} · del más reciente al más antiguo` : "";
+  $("h-prev").disabled = H.page === 0;
+  $("h-next").disabled = H.page >= pages - 1;
+}
+
+$("h-games").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-game]"); if (!b) return;
+  H.game = b.dataset.game; H.page = 0; H.f = { ...H.f, conc: null };
+  if (H.f.mine.length) H.f.minHits = Math.min(H.f.minHits, GAMES[H.game].k);
+  syncHistInputs(); renderHist();
+});
+$("h-period").addEventListener("change", () => { H.period = $("h-period").value; renderFreq(); });
+$("h-prev").addEventListener("click", () => { H.page = Math.max(0, H.page - 1); renderHistTable(); });
+$("h-next").addEventListener("click", () => { H.page++; renderHistTable(); });
+
+/* ---------- Menú ---------- */
+let histReady = false;
+function route() {
+  const v = location.hash === "#historico" ? "historico" : location.hash === "#reglas" ? "reglas" : "calculadora";
+  $("view-calculadora").hidden = v !== "calculadora";
+  $("view-historico").hidden = v !== "historico";
+  $("view-reglas").hidden = v !== "reglas";
+  if (v === "reglas") renderRules();
+  document.querySelectorAll(".nav a").forEach((a) => (a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  if (v === "historico") { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
+  $("fab-filtros").hidden = v !== "historico" || !rowsOf(H.game).length;
+  if (v !== "historico" && !$("filtros").hidden) closeFilters();
+}
+window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+
+/* ---------- Menú plegable ---------- */
+function setCollapsed(on) {
+  document.querySelector(".app").classList.toggle("collapsed", on);
+  const b = $("collapse-btn");
+  b.setAttribute("aria-expanded", String(!on));
+  b.setAttribute("aria-label", on ? "Mostrar el menú" : "Esconder el menú");
+  b.title = on ? "Mostrar el menú" : "Esconder el menú";
+}
+try { if (localStorage.getItem("menuOculto") === "1") setCollapsed(true); } catch (e) {}
+$("collapse-btn").addEventListener("click", () => {
+  const on = !document.querySelector(".app").classList.contains("collapsed");
+  setCollapsed(on);
+  try { localStorage.setItem("menuOculto", on ? "1" : "0"); } catch (e) {}
+});
+
+/* ---------- Tema claro / oscuro ---------- */
+const darkMQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+function isDark() {
+  const t = document.documentElement.getAttribute("data-theme");
+  return t ? t === "dark" : !!(darkMQ && darkMQ.matches);
+}
+function syncThemeLabel() { $("theme-lbl").textContent = isDark() ? "Modo claro" : "Modo oscuro"; }
+try { const saved = localStorage.getItem("tema"); if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved); } catch (e) {}
+$("theme-btn").addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("tema", next); } catch (e) {}
+  syncThemeLabel();
+});
+if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", syncThemeLabel);
+new MutationObserver(syncThemeLabel).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+syncThemeLabel();
+
+/* ---------- Fuente de datos ----------
+   Publicada en GitHub Pages, la página descarga historico-loteria.json.gz de su misma carpeta
+   (n8n lo actualiza cada hora). En el archivo local o en claude.ai usa los datos incluidos. */
+const SITIO = "https://defsilentdead.github.io/PuzzleNumbers/";
+const DATA_FILE = "historico-loteria.json.gz";
+const SRC = { state: "embebido", at: null, detail: "" };
+EMBED_UPDATED = loadHist().updated;
+
+function validData(p) {
+  if (!p || typeof p !== "object" || !p.games || typeof p.games !== "object") throw new Error("formato");
+  // Solo se aceptan filas de números enteros
+  for (const g of Object.keys(GAMES)) {
+    const rows = p.games[g];
+    if (rows === undefined) continue;
+    if (!Array.isArray(rows) || !rows.every((r) => Array.isArray(r) && r.length >= 3 && r.every((x) => x === null || Number.isInteger(x)))) throw new Error("formato");
+  }
+  return p;
+}
+function adoptData(d) {
+  const base = loadHist();
+  let changed = false, maxDate = 0;
+  for (const g of Object.keys(GAMES)) {
+    const rows = d.games[g];
+    if (Array.isArray(rows) && rows.length) {
+      const cur = base.games[g] || [];
+      const lastNew = rows[0][0], lastCur = cur.length ? cur[0][0] : 0;
+      if (lastNew > lastCur || (lastNew === lastCur && rows.length > cur.length)) { base.games[g] = rows; changed = true; }
+    }
+    const r0 = (base.games[g] || [])[0];
+    if (r0) maxDate = Math.max(maxDate, r0[1]);
+  }
+  if (maxDate) { const s = String(maxDate); base.updated = `${s.slice(6, 8)}/${s.slice(4, 6)}/${s.slice(0, 4)}`; }
+  if (changed) refreshAfterData();
+}
+function refreshAfterData() {
+  for (const k of Object.keys(REP)) delete REP[k];
+  sideCard();
+  if (!$("view-historico").hidden) { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
+  if (!$("view-reglas").hidden) renderRules();
+  $("fab-filtros").hidden = $("view-historico").hidden || !rowsOf(H.game).length;
+  if (space) renderList();
+}
+function haceTexto(ms) {
+  const min = Math.max(0, Math.round((Date.now() - ms) / 60000));
+  return min < 1 ? "hace un momento" : min < 60 ? `hace ${min} min` : `hace ${Math.round(min / 60)} h`;
+}
+function renderSrc() {
+  const el = $("src-status");
+  const datos = loadHist().updated;
+  const hayDatos = Object.values(loadHist().games || {}).some((r) => r && r.length);
+  const sitioOk = !SITIO.includes("USUARIO_GITHUB");
+  let cls = "", txt = "", btn = "";
+  switch (SRC.state) {
+    case "web": cls = "ok"; txt = `Al día · datos al ${datos} · revisado ${haceTexto(SRC.at || Date.now())}`; break;
+    case "web-cargando": txt = hayDatos ? `Buscando resultados nuevos… datos al ${datos}` : "Cargando el histórico de resultados…"; break;
+    case "web-error": cls = "warn"; txt = `No se pudo descargar el histórico (${SRC.detail}).` + (hayDatos ? ` Datos al ${datos}.` : ""); btn = `<button class="btn sm primary" type="button" id="src-retry">Reintentar</button>`; break;
+    case "formato": cls = "warn"; txt = `El archivo del histórico no tiene el formato esperado; se ignora.` + (hayDatos ? ` Datos al ${datos}.` : ""); break;
+    default: txt = `Datos incluidos en esta copia, al ${datos}.` + (sitioOk ? ` La versión pública se actualiza sola en <a class="link" href="${SITIO}" target="_blank" rel="noopener">${SITIO.replace(/^https:\/\//, "")}</a>.` : "");
+  }
+  el.className = "src-bar" + (cls ? " " + cls : "");
+  el.innerHTML = `<i class="src-dot" aria-hidden="true"></i><span>${txt}</span>${btn}`;
+  $("h-updated").textContent = datos ? `Datos al ${datos}` : "";
+  if (!hayDatos) $("h-empty").textContent = SRC.state === "web-cargando" ? "Cargando el histórico…" : SRC.state === "web-error" ? "No se pudo cargar el histórico. Revisa tu conexión y pulsa Reintentar." : "Esta copia no trae datos del histórico.";
+}
+async function gunzipText(buf) {
+  if (typeof DecompressionStream === "undefined") throw new Error("tu navegador no puede descomprimir el archivo; actualízalo");
+  const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return await new Response(stream).text();
+}
+let webLoading = false;
+async function loadWeb() {
+  if (webLoading) return;
+  webLoading = true;
+  SRC.state = "web-cargando"; renderSrc();
+  try {
+    // El parámetro evita que el navegador use una copia vieja del archivo
+    const r = await fetch(`${DATA_FILE}?t=${Math.floor(Date.now() / 300000)}`, { cache: "no-cache" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    const txt = bytes[0] === 0x1f && bytes[1] === 0x8b ? await gunzipText(bytes) : new TextDecoder("utf-8").decode(bytes);
+    adoptData(validData(JSON.parse(txt)));
+    SRC.state = "web"; SRC.at = Date.now();
+  } catch (e) {
+    SRC.state = e && e.message === "formato" ? "formato" : "web-error";
+    SRC.detail = (e && e.message) || "error";
+  }
+  webLoading = false;
+  renderSrc();
+}
+$("src-status").addEventListener("click", (e) => { if (e.target.id === "src-retry") loadWeb(); });
+function initSource() {
+  const enClaude = !!(window.claude && typeof window.claude.use === "function") || /claude/.test(location.hostname);
+  const enWeb = /^https?:$/.test(location.protocol) && !enClaude;
+  if (!enWeb) { SRC.state = "embebido"; renderSrc(); return; }
+  loadWeb();
+  // Mientras la página siga abierta, busca resultados nuevos cada 30 minutos
+  setInterval(() => { if (document.visibilityState === "visible") loadWeb(); else if (SRC.state === "web") renderSrc(); }, 30 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && SRC.at && Date.now() - SRC.at > 30 * 60 * 1000) loadWeb();
+  });
+  setInterval(() => { if (SRC.state === "web") renderSrc(); }, 60000);
+}
+
+applyPreset("melate");
+sideCard();
+route();
+renderSrc();
+initSource();
+</script>
