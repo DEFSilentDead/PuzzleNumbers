@@ -107,6 +107,19 @@ body {
 .side-card .k { font-size: 12px; color: var(--muted); }
 .side-card .d { font-size: 12px; color: var(--muted); }
 .side-card .balls { justify-content: center; }
+.sc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
+.sc-head .k { font-weight: 600; text-align: left; }
+.sc-toggle { width: 26px; height: 26px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--sunk); color: var(--muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.sc-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.sc-toggle svg { width: 15px; height: 15px; transition: transform .2s; }
+.sc-games { display: flex; justify-content: center; gap: 5px; width: 100%; }
+.sc-games button { font: inherit; font-size: 11px; font-weight: 800; width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer; display: grid; place-items: center; border: 1.5px solid var(--gc); background: transparent; color: var(--gc); }
+.sc-games button:hover { background: var(--sunk); }
+.sc-games button[aria-pressed="true"] { background: var(--gc); color: var(--card-solid); }
+.sc-body { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.side-card.min { gap: 8px; padding: 12px 14px; }
+.side-card.min .sc-games, .side-card.min .sc-body { display: none; }
+.side-card.min .sc-toggle svg { transform: rotate(180deg); }
 
 /* Área principal */
 .main { min-width: 0; padding-block: 30px 56px; padding-left: 28px; padding-right: max(28px, env(safe-area-inset-right, 0px)); }
@@ -279,6 +292,39 @@ tr.top td { font-weight: 700; }
 .search { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
 .hits { font-weight: 700; color: var(--mark); }
 
+/* Guía */
+.guide-toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.guide-toc button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); cursor: pointer; }
+.guide-toc button:hover { color: var(--accent); border-color: var(--accent); }
+.gsec { scroll-margin-top: 80px; }
+.gsec h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--head); }
+.gsec h3 { margin: 4px 0 0; font-size: 14px; font-weight: 700; color: var(--ink); }
+.gsec p { margin: 0; max-width: 80ch; }
+.gsec code { font-family: var(--font-mono); font-size: 12.5px; background: var(--sunk); padding: 1px 6px; border-radius: 6px; }
+.ui { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: paso; display: flex; flex-direction: column; gap: 10px; max-width: 80ch; }
+.steps li { counter-increment: paso; position: relative; padding-left: 42px; padding-top: 3px; min-height: 28px; }
+.steps li::before { content: counter(paso); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--accent-ink); }
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.ex { display: flex; flex-direction: column; gap: 6px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card-solid); }
+.ex-q { font-weight: 700; }
+.ex-a { font-size: 13px; color: var(--muted); flex: 1; }
+.ex .btn { align-self: flex-start; }
+.gtable td { white-space: normal; vertical-align: top; }
+.gtable td:first-child { white-space: nowrap; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.mode-card { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card-solid); }
+.mode-t { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.mode-t .pill { margin-left: 0; }
+.tips { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; max-width: 82ch; }
+.defs { margin: 0; display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); gap: 10px 18px; max-width: 90ch; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; color: var(--ink); }
+.gsec details { border: 1px solid var(--line); border-radius: 12px; background: var(--card-solid); padding: 0 14px; }
+.gsec summary { cursor: pointer; font-weight: 700; padding: 12px 0; list-style-position: outside; }
+.gsec details p { padding-bottom: 12px; color: var(--ink); }
+@media (max-width: 600px) { .defs { grid-template-columns: minmax(0, 1fr); gap: 2px 0; } .defs dd { margin-bottom: 8px; } }
+
 /* Menú plegable */
 .side-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .collapse-btn { width: 34px; height: 34px; flex: none; border-radius: 10px; border: 1px solid var(--line); background: var(--card-solid); color: var(--muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
@@ -424,6 +470,10 @@ a.link:hover { text-decoration: underline; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/><path d="M9 7h7M9 11h5"/></svg>
         <span>Reglas</span>
       </a>
+      <a href="#guia" data-view="guia" title="Guía de uso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><path d="M12 17.6h.01"/></svg>
+        <span>Guía</span>
+      </a>
     </nav>
     <button type="button" class="theme-btn" id="theme-btn" aria-label="Cambiar entre modo claro y oscuro">
       <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -431,10 +481,24 @@ a.link:hover { text-decoration: underline; }
       <span id="theme-lbl">Modo oscuro</span>
     </button>
     <div class="side-card" id="side-card" hidden>
-      <span class="k">Último Melate</span>
-      <div class="balls" id="side-balls"></div>
-      <span class="d" id="side-date"></span>
-      <a class="btn sm primary" href="#historico">Ver histórico</a>
+      <div class="sc-head">
+        <span class="k" id="side-title">Último Melate</span>
+        <button type="button" class="sc-toggle" id="side-toggle" aria-expanded="true" aria-controls="side-body" title="Minimizar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="sc-games" id="side-games" aria-label="Elegir sorteo">
+        <button type="button" data-g="melate" title="Melate" style="--gc: var(--accent)">M</button>
+        <button type="button" data-g="revancha" title="Revancha" style="--gc: var(--teal)">R</button>
+        <button type="button" data-g="revanchita" title="Revanchita" style="--gc: var(--head)">Rv</button>
+        <button type="button" data-g="chispazo" title="Chispazo" style="--gc: var(--mark)">Ch</button>
+        <button type="button" data-g="tris" title="Tris" style="--gc: var(--orange)">T</button>
+      </div>
+      <div class="sc-body" id="side-body">
+        <div class="balls" id="side-balls"></div>
+        <span class="d" id="side-date"></span>
+        <a class="btn sm primary" href="#historico" id="side-link">Ver histórico</a>
+      </div>
     </div>
   </aside>
 
@@ -726,6 +790,183 @@ a.link:hover { text-decoration: underline; }
       </section>
 
       <p class="note">Resumen hecho con las páginas oficiales de cada juego. Si algo no coincide, manda la información vigente de Lotería Nacional.</p>
+    </section>
+
+    <!-- ========== Guía ========== -->
+    <section class="view" id="view-guia" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Guía de uso</h1>
+          <p>Todo lo que hace la página, con ejemplos que puedes probar con un clic.</p>
+        </div>
+      </div>
+
+      <nav class="guide-toc" aria-label="Contenido de la guía">
+        <button type="button" data-goto="g-inicio">Primeros pasos</button>
+        <button type="button" data-goto="g-calc">Calculadora</button>
+        <button type="button" data-goto="g-numeros">Tus números</button>
+        <button type="button" data-goto="g-resultados">Resultados y listado</button>
+        <button type="button" data-goto="g-historico">Histórico</button>
+        <button type="button" data-goto="g-ajustes">Menú y tema</button>
+        <button type="button" data-goto="g-faq">Preguntas frecuentes</button>
+      </nav>
+
+      <section class="panel gsec" id="g-inicio">
+        <h2>Primeros pasos</h2>
+        <p>La página responde una pregunta: <b>¿cuántas jugadas posibles hay con las condiciones que yo pongo?</b> Y te deja ver cada una, saber qué probabilidad tienes y cuánto costaría jugarlas.</p>
+        <ol class="steps">
+          <li><b>Elige el sorteo</b> en <span class="ui">Calculadora → Sorteo</span>: Melate, Chispazo, Tris o Personalizado.</li>
+          <li><b>Ajusta las reglas</b> si quieres: rango de números, cuántas posiciones, si importa el orden o si se repiten.</li>
+          <li><b>Marca tus números</b> en el boleto: los que deben aparecer o los únicos que quieres usar.</li>
+          <li><b>Lee el resultado</b>: cuántas combinaciones hay, la probabilidad y el costo.</li>
+          <li><b>Revisa la lista</b> de combinaciones o expórtala a Excel (CSV).</li>
+        </ol>
+        <div class="ex-grid">
+          <div class="ex">
+            <span class="ex-q">¿Cuántas jugadas de Melate traen el 7 y el 21?</span>
+            <span class="ex-a">316,251 de 32,468,436 posibles.</span>
+            <button class="btn sm primary" type="button" data-ejemplo="melate721">Probar</button>
+          </div>
+          <div class="ex">
+            <span class="ex-q">¿Cuántas jugadas de Chispazo puedo armar solo con los números del 1 al 10?</span>
+            <span class="ex-a">252 combinaciones.</span>
+            <button class="btn sm primary" type="button" data-ejemplo="chispazo10">Probar</button>
+          </div>
+          <div class="ex">
+            <span class="ex-q">¿Cuántos Tris empiezan con 7?</span>
+            <span class="ex-a">10,000 (los otros 4 dígitos libres).</span>
+            <button class="btn sm primary" type="button" data-ejemplo="tris7">Probar</button>
+          </div>
+          <div class="ex">
+            <span class="ex-q">¿Alguna vez ganó la combinación 8-12-15-18-20-34 en Melate?</span>
+            <span class="ex-a">Sí, dos veces: concursos 4 y 4075.</span>
+            <button class="btn sm primary" type="button" data-ejemplo="historico">Probar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel gsec" id="g-calc">
+        <h2>Calculadora: sorteo y reglas</h2>
+        <h3>Sorteos listos</h3>
+        <div class="tbl-wrap">
+          <table class="gtable">
+            <thead><tr><th>Sorteo</th><th>Cómo se juega</th><th>Combinaciones</th></tr></thead>
+            <tbody>
+              <tr><td><b>Melate / Revancha</b></td><td>6 números del 1 al 56, sin orden ni repetición. Melate saca además un número adicional.</td><td class="num-c">32,468,436</td></tr>
+              <tr><td><b>Chispazo</b></td><td>5 números del 1 al 28, sin orden ni repetición.</td><td class="num-c">98,280</td></tr>
+              <tr><td><b>Tris</b></td><td>5 dígitos del 0 al 9, en orden y se pueden repetir.</td><td class="num-c">100,000</td></tr>
+              <tr><td><b>Personalizado</b></td><td>Tú defines todo. Si cambias cualquier regla de un sorteo listo, pasa a Personalizado.</td><td class="num-c">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Reglas</h3>
+        <div class="tbl-wrap">
+          <table class="gtable">
+            <thead><tr><th>Regla</th><th>Qué cambia</th><th>Ejemplo</th></tr></thead>
+            <tbody>
+              <tr><td><span class="ui">Desde / Hasta</span></td><td>El rango de números del boleto (máximo 200 números).</td><td>1 a 56 en Melate.</td></tr>
+              <tr><td><span class="ui">Posiciones</span></td><td>Cuántos números lleva cada jugada.</td><td>6 en Melate, 5 en Chispazo.</td></tr>
+              <tr><td><span class="ui">¿Importa el orden?</span></td><td>Si está activo, 1-2-3 y 3-2-1 cuentan como jugadas distintas.</td><td>Tris sí; Melate no.</td></tr>
+              <tr><td><span class="ui">¿Se pueden repetir números?</span></td><td>Permite jugadas como 7-7-2.</td><td>Tris sí; Melate no.</td></tr>
+              <tr><td><span class="ui">Fijar en posición</span></td><td>Solo con orden. Cada número fijo va en un lugar exacto; aparecen listas «Posición 1, 2…».</td><td>Tris que empiece con 7.</td></tr>
+              <tr><td><span class="ui">Número adicional</span></td><td>Agrega las categorías «+ adicional» en premios secundarios.</td><td>Melate.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">Debajo del total aparece la fórmula usada, por ejemplo <code>C(55, 5) = 3,478,761</code>, para que puedas comprobar la cuenta.</p>
+      </section>
+
+      <section class="panel gsec" id="g-numeros">
+        <h2>Tus números</h2>
+        <p>Arriba del boleto hay dos modos. Lo que marques al tocar un número depende del modo activo:</p>
+        <div class="two">
+          <div class="mode-card">
+            <span class="mode-t"><i class="dot req"></i> Debe contener <span class="pill">naranja</span></span>
+            <p>Números que <b>tienen que aparecer</b> en cada combinación. Puedes marcar como máximo tantos como posiciones haya.</p>
+            <p class="hint">Ejemplo: en Melate marca 7 y 21 → solo cuenta jugadas que traigan ambos.</p>
+          </div>
+          <div class="mode-card">
+            <span class="mode-t"><i class="dot pool"></i> Solo usar estos <span class="pill blue">azul</span></span>
+            <p>Los <b>únicos números</b> con los que se arman las combinaciones. Los demás del boleto se ven apagados.</p>
+            <p class="hint">Ejemplo: en Chispazo marca del 1 al 10 → 252 jugadas usando solo esos.</p>
+          </div>
+        </div>
+        <ul class="tips">
+          <li>Se pueden combinar: «solo usar del 1 al 10» y además «debe contener el 7» da 126 jugadas.</li>
+          <li>En la caja de texto puedes escribir números o rangos: <code>7, 21, 33</code>, <code>1-10</code> o <code>1 a 10</code>, y pulsar <span class="ui">Marcar</span>.</li>
+          <li><span class="ui">Usar todos</span> quita la selección de «Solo usar estos»; <span class="ui">Limpiar todo</span> borra ambos modos.</li>
+          <li>Con <span class="ui">Fijar en posición</span> activo, el modo naranja cambia a listas por posición.</li>
+        </ul>
+      </section>
+
+      <section class="panel gsec" id="g-resultados">
+        <h2>Resultados, premios y listado</h2>
+        <dl class="defs">
+          <dt>Combinaciones</dt><dd>El número grande: cuántas jugadas cumplen tus condiciones y qué porcentaje son del sorteo completo.</dd>
+          <dt>Probabilidad con 1 boleto</dt><dd>La de ganar el premio mayor con una sola jugada, por ejemplo «1 en 32,468,436» en Melate.</dd>
+          <dt>Si juegas todas las de arriba</dt><dd>Tu probabilidad si compraras todas las combinaciones de la lista.</dd>
+          <dt>Costo</dt><dd>Cuánto costaría jugarlas todas y cubrir el sorteo completo. El precio por boleto se puede editar.</dd>
+          <dt>Premios secundarios</dt><dd>La probabilidad de atinar 5, 4, 3… números (con o sin adicional en Melate). En Tris, por posición y por tramos en orden.</dd>
+        </dl>
+        <h3>Listado</h3>
+        <ul class="tips">
+          <li>Muestra las combinaciones en orden, de 50 a 200 por página. Los números fijos se ven en naranja.</li>
+          <li><span class="ui">Ir a la #</span> salta directo a cualquier combinación, por ejemplo la #20,000,000 de Melate.</li>
+          <li>La etiqueta <span class="seen">Salió · Melate #4075</span> marca las combinaciones que ya ganaron en un sorteo real.</li>
+          <li><span class="ui">Exportar CSV</span> descarga hasta 2 millones de combinaciones desde la posición que elijas; se abre en Excel.</li>
+        </ul>
+      </section>
+
+      <section class="panel gsec" id="g-historico">
+        <h2>Histórico de resultados</h2>
+        <p>Resultados oficiales de Lotería Nacional de Melate, Revancha, Revanchita, Chispazo y Tris. Se actualizan solos cada hora después de cada sorteo; la barra de arriba dice cuándo se revisó por última vez.</p>
+        <ul class="tips">
+          <li><b>Pestañas:</b> elige el sorteo. Las tarjetas muestran el último resultado, cuántos sorteos hay y la bolsa más alta.</li>
+          <li><b>Frecuencia:</b> cuántas veces salió cada número en el periodo elegido (último año, 5 años, todo). En naranja, los más frecuentes.</li>
+          <li><b>Filtros:</b> el botón azul <span class="ui">Filtros</span> de abajo a la derecha te acompaña mientras bajas. Ahí filtras por fechas, por números que contengan (con mínimo de aciertos) o por concurso. Los filtros activos quedan como etiquetas sobre la tabla; quítalos con la ×.</li>
+          <li><b>¿Ya ganó mi jugada?</b> Abre <span class="ui">Filtros</span>, escribe tus números y deja «Mínimo de aciertos» en «todos». Si bajas el mínimo verás en qué sorteos habrías atinado 4 o 5, por ejemplo.</li>
+          <li><b>Combinaciones repetidas:</b> combinaciones ganadoras que salieron más de una vez, comparadas con lo que se espera por puro azar.</li>
+        </ul>
+        <p>En <span class="ui">Reglas</span> hay un resumen de cómo funciona cada sorteo y enlaces a las páginas oficiales.</p>
+      </section>
+
+      <section class="panel gsec" id="g-ajustes">
+        <h2>Menú y tema</h2>
+        <ul class="tips">
+          <li>El botón junto al logo <b>esconde el menú</b> y deja solo los íconos; vuelve a pulsarlo para abrirlo.</li>
+          <li>La tarjeta <b>Último resultado</b>, abajo del menú, muestra el último ganador. Toca <b>M</b>, <b>R</b>, <b>Rv</b>, <b>Ch</b> o <b>T</b> para ver Melate, Revancha, Revanchita, Chispazo o Tris. La flecha la minimiza, y <span class="ui">Ver histórico</span> abre ese sorteo.</li>
+          <li><span class="ui">Modo oscuro / Modo claro</span> cambia los colores. La página recuerda tu elección.</li>
+          <li>En el celular el menú está arriba como íconos.</li>
+        </ul>
+      </section>
+
+      <section class="panel gsec" id="g-faq">
+        <h2>Preguntas frecuentes</h2>
+        <details>
+          <summary>¿Esta página aumenta mis probabilidades de ganar?</summary>
+          <p>No. Todas las combinaciones tienen exactamente la misma probabilidad de salir, sin importar si un número ha salido mucho o poco. La página solo cuenta y muestra datos; jugar más boletos sube tu probabilidad en la misma proporción en que sube lo que gastas.</p>
+        </details>
+        <details>
+          <summary>¿De dónde salen los resultados y cada cuánto se actualizan?</summary>
+          <p>De los archivos históricos oficiales de Lotería Nacional. Un proceso automático los revisa cada hora y, si hay concursos nuevos, actualiza la página en uno o dos minutos. Si tienes la página abierta, busca resultados nuevos cada 30 minutos.</p>
+        </details>
+        <details>
+          <summary>¿Puede volver a salir una combinación que ya ganó?</summary>
+          <p>Sí. Cada sorteo es independiente y no se descartan combinaciones anteriores. Ha pasado: la misma combinación de Melate salió en los concursos 4 y 4075, y en Tris se han repetido miles.</p>
+        </details>
+        <details>
+          <summary>¿Por qué el total cambia cuando activo «¿Importa el orden?»</summary>
+          <p>Porque 1-2-3 y 3-2-1 pasan a contar como dos jugadas distintas. Con 5 números sin repetir, cada combinación se puede ordenar de 120 formas.</p>
+        </details>
+        <details>
+          <summary>Los precios no coinciden con los del expendio.</summary>
+          <p>El precio por boleto es editable en la tarjeta de resultados. Ponle el vigente y el costo se recalcula.</p>
+        </details>
+        <details>
+          <summary>No carga el histórico.</summary>
+          <p>Revisa tu conexión y pulsa <span class="ui">Reintentar</span> en la barra del histórico. Si usas un navegador muy antiguo, actualízalo: la página necesita descomprimir el archivo de resultados.</p>
+        </details>
+      </section>
     </section>
   </main>
 </div>
@@ -1503,13 +1744,39 @@ function periodRows(g) {
   const cut = last - years * 10000;
   return rows.filter((r) => r[1] > cut);
 }
+/* Tarjeta lateral: último resultado de cada sorteo, minimizable */
+let sideGame = "melate", sideMin = false;
+try { const g = localStorage.getItem("ultimoSorteo"); if (g && GAMES[g]) sideGame = g; sideMin = localStorage.getItem("tarjetaMin") === "1"; } catch (e) {}
 function sideCard() {
-  const rows = rowsOf("melate");
-  if (!rows.length) return;
+  if (!Object.keys(GAMES).some((g) => rowsOf(g).length)) return;
+  if (!rowsOf(sideGame).length) sideGame = Object.keys(GAMES).find((g) => rowsOf(g).length);
+  const rows = rowsOf(sideGame), G = GAMES[sideGame];
   $("side-card").hidden = false;
-  $("side-balls").innerHTML = ballsHtml(rows[0], "melate");
+  $("side-card").classList.toggle("min", sideMin);
+  $("side-toggle").setAttribute("aria-expanded", String(!sideMin));
+  $("side-toggle").title = sideMin ? "Mostrar" : "Minimizar";
+  $("side-toggle").setAttribute("aria-label", sideMin ? "Mostrar último resultado" : "Minimizar último resultado");
+  $("side-title").textContent = sideMin ? `Último ${G.name} · ${rows[0][0]}` : `Último ${G.name}`;
+  document.querySelectorAll("#side-games button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.g === sideGame)));
+  $("side-balls").innerHTML = ballsHtml(rows[0], sideGame);
   $("side-date").textContent = `Concurso ${rows[0][0]} · ${fdate(rows[0][1])}`;
 }
+$("side-games").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-g]"); if (!b) return;
+  sideGame = b.dataset.g;
+  try { localStorage.setItem("ultimoSorteo", sideGame); } catch (err) {}
+  sideCard();
+});
+$("side-toggle").addEventListener("click", () => {
+  sideMin = !sideMin;
+  try { localStorage.setItem("tarjetaMin", sideMin ? "1" : "0"); } catch (err) {}
+  sideCard();
+});
+$("side-link").addEventListener("click", () => {
+  // Abre el histórico en el sorteo que se está viendo en la tarjeta
+  if (H.game !== sideGame) { H.game = sideGame; H.page = 0; H.f = { ...H.f, conc: null }; if (histReady) renderChips(); }
+  if (location.hash === "#historico") route();
+});
 
 function renderHist() {
   const g = H.game, G = GAMES[g], rows = rowsOf(g);
@@ -1774,10 +2041,12 @@ $("h-next").addEventListener("click", () => { H.page++; renderHistTable(); });
 /* ---------- Menú ---------- */
 let histReady = false;
 function route() {
-  const v = location.hash === "#historico" ? "historico" : location.hash === "#reglas" ? "reglas" : "calculadora";
+  const vistas = { "#historico": "historico", "#reglas": "reglas", "#guia": "guia" };
+  const v = vistas[location.hash] || "calculadora";
   $("view-calculadora").hidden = v !== "calculadora";
   $("view-historico").hidden = v !== "historico";
   $("view-reglas").hidden = v !== "reglas";
+  $("view-guia").hidden = v !== "guia";
   if (v === "reglas") renderRules();
   document.querySelectorAll(".nav a").forEach((a) => (a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (v === "historico") { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
@@ -1785,6 +2054,29 @@ function route() {
   if (v !== "historico" && !$("filtros").hidden) closeFilters();
 }
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+
+/* ---------- Guía: índice y ejemplos ---------- */
+$("view-guia").addEventListener("click", (e) => {
+  const ir = e.target.closest("button[data-goto]");
+  if (ir) { const s = $(ir.dataset.goto); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  const b = e.target.closest("button[data-ejemplo]");
+  if (!b) return;
+  const ej = b.dataset.ejemplo;
+  if (ej === "historico") {
+    H.game = "melate"; H.page = 0;
+    H.f = { mine: [8, 12, 15, 18, 20, 34], minHits: 6, conc: null, from: null, to: null };
+    if (histReady) renderChips();
+    location.hash = "#historico";
+    if (location.hash === "#historico") { route(); window.scrollTo(0, 0); setTimeout(() => $("h-results").scrollIntoView({ behavior: "smooth", block: "start" }), 150); }
+    return;
+  }
+  showPickMsg("");
+  if (ej === "melate721") { applyPreset("melate"); S.req = [7, 21]; }
+  if (ej === "chispazo10") { applyPreset("chispazo"); S.req = []; S.pool = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; S.mode = "pool"; }
+  if (ej === "tris7") { applyPreset("tris"); S.req = []; S.posMode = true; S.pos = Array(S.R).fill(null); S.pos[0] = 7; markCustom(); }
+  S.pageStart = 0n; syncControls(); update();
+  location.hash = "#calculadora";
+});
 
 /* ---------- Menú plegable ---------- */
 function setCollapsed(on) {
