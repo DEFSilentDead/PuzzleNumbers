@@ -1030,6 +1030,10 @@ a.link:hover { text-decoration: underline; }
           </div>
         </div>
         <div class="mf-ejs">
+          <button class="btn sm primary" type="button" id="mf-ultimo">Usar el último sorteo como participantes</button>
+          <span class="hint">del sorteo elegido arriba (Chispazo, Melate…): te dice qué sumas predice la ley para el siguiente.</span>
+        </div>
+        <div class="mf-ejs">
           <span class="hint">Ejemplos de tus boletos:</span>
           <button class="btn sm" type="button" data-mf-ej="1,3,10,11,12,19,28|3,12,16,17,23">1, 3, 10, 11, 12, 19, 28</button>
           <button class="btn sm" type="button" data-mf-ej="1,7,10,19,27,28|1,3,8,27,28">1, 7, 10, 19, 27, 28</button>
@@ -2083,6 +2087,28 @@ function seenFor(values, games) {
 }
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 function fdate(d) { const y = Math.floor(d / 10000), m = Math.floor(d / 100) % 100, dd = d % 100; return `${dd} ${MESES[m - 1]} ${y}`; }
+/* Hora del sorteo. El histórico oficial no la trae: se deduce por el orden de los concursos de cada día,
+   con los horarios vigentes (Chispazo 15:00 De las Tres y 21:00 Clásico; Tris 13, 15, 17, 19 y 21 h). */
+const HORARIOS = {
+  chispazo: ["15:00 · De las Tres", "21:00 · Clásico"],
+  tris: ["13:00", "15:00", "17:00", "19:00", "21:00"],
+  melate: ["21:00"], revancha: ["21:00"], revanchita: ["21:00"],
+};
+const HORA_CACHE = {};
+function horaDe(g, r) {
+  if (!HORA_CACHE[g]) {
+    const porDia = new Map();
+    for (const row of rowsOf(g)) { const a = porDia.get(row[1]) || []; a.push(row[0]); porDia.set(row[1], a); }
+    const m = new Map(), h = HORARIOS[g] || [];
+    for (const conc of porDia.values()) {
+      if (conc.length !== h.length) continue; // días con otro número de sorteos: no se adivina la hora
+      conc.sort((a, b) => a - b).forEach((c, i) => m.set(c, h[i]));
+    }
+    HORA_CACHE[g] = m;
+  }
+  return HORA_CACHE[g].get(r[0]) || "";
+}
+const fechaHora = (g, r) => fdate(r[1]) + (horaDe(g, r) ? ` · ${horaDe(g, r)}` : "");
 function hpad(v, g) { return GAMES[g].digits ? String(v) : String(v).padStart(2, "0"); }
 function pesos(n) { return "$" + Math.round(n).toLocaleString("es-MX"); }
 function pesosCorto(n) { return n >= 1e6 ? "$" + (n / 1e6).toLocaleString("es-MX", { maximumFractionDigits: 1 }) + " millones" : pesos(n); }
@@ -2116,7 +2142,7 @@ function sideCard() {
   $("side-title").textContent = sideMin ? `Último ${G.name} · ${rows[0][0]}` : `Último ${G.name}`;
   document.querySelectorAll("#side-games button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.g === sideGame)));
   $("side-balls").innerHTML = ballsHtml(rows[0], sideGame);
-  $("side-date").textContent = `Concurso ${rows[0][0]} · ${fdate(rows[0][1])}`;
+  $("side-date").textContent = `Concurso ${rows[0][0]} · ${fechaHora(sideGame, rows[0])}`;
 }
 $("side-games").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-g]"); if (!b) return;
@@ -2147,7 +2173,7 @@ function renderHist() {
   const last = rows[0];
   $("h-last-k").textContent = `Último sorteo · Concurso ${last[0]}`;
   $("h-last-balls").innerHTML = ballsHtml(last, g, null, true);
-  $("h-last-s").textContent = fdate(last[1]) + (G.bolsa && bolsaOf(last, g) ? ` · Bolsa ${pesosCorto(bolsaOf(last, g))}` : "") + (G.adic ? " · el último es el adicional" : "");
+  $("h-last-s").textContent = fechaHora(g, last) + (G.bolsa && bolsaOf(last, g) ? ` · Bolsa ${pesosCorto(bolsaOf(last, g))}` : "") + (G.adic ? " · el último es el adicional" : "");
   $("h-count").textContent = rows.length.toLocaleString("es-MX");
   $("h-count-s").textContent = `desde el ${fdate(rows[rows.length - 1][1])}`;
   if (G.bolsa) {
@@ -2374,7 +2400,7 @@ function renderHistTable() {
   let h = `<table><thead><tr><th>Concurso</th><th>Fecha</th><th>Números${G.adic ? " + adicional" : ""}</th>${f.mine.length ? '<th class="r">Aciertos</th>' : ""}${G.bolsa ? '<th class="r">Bolsa</th>' : ""}</tr></thead><tbody>`;
   for (const r of slice) {
     const b = bolsaOf(r, g);
-    h += `<tr><td class="num-c">${r[0]}</td><td>${fdate(r[1])}</td><td><div class="balls">${ballsHtml(r, g, mineSet)}</div></td>${f.mine.length ? `<td class="r hits">${hitsOf(r)}</td>` : ""}${G.bolsa ? `<td class="r num-c">${b ? pesos(b) : "—"}</td>` : ""}</tr>`;
+    h += `<tr><td class="num-c">${r[0]}</td><td>${fdate(r[1])}${horaDe(g, r) ? `<br><span class="hint">${horaDe(g, r)}</span>` : ""}</td><td><div class="balls">${ballsHtml(r, g, mineSet)}</div></td>${f.mine.length ? `<td class="r hits">${hitsOf(r)}</td>` : ""}${G.bolsa ? `<td class="r num-c">${b ? pesos(b) : "—"}</td>` : ""}</tr>`;
   }
   if (!slice.length) h += `<tr><td colspan="5" class="hint">Ningún sorteo cumple esos filtros.</td></tr>`;
   h += `</tbody></table>`;
@@ -2804,8 +2830,13 @@ function mfVerificar() {
   if (!part.length) { out.innerHTML = ""; return; }
   if (part.length < 3) { out.innerHTML = `<p class="msg">Escribe al menos 3 números participantes.</p>`; return; }
   const a = mfAplicar(part, fuente);
+  let origen = "";
+  if (MF_ORIGEN && MF_ORIGEN.clave === part.join(",")) {
+    const { g, row } = MF_ORIGEN;
+    origen = `<div class="mf-paso"><span class="n">★</span><div><div class="t">Participantes: ganadores del último ${GAMES[g].name}</div><div class="d">Concurso <b>#${row[0]}</b> · ${fechaHora(g, row)}${GAMES[g].adic ? " (sin el adicional)" : ""}. La predicción es para el siguiente: <b>#${row[0] + 1}</b>${siguienteHora(g, row) ? ` · ${siguienteHora(g, row)}` : ""}.</div><div class="hint">Cuando salga ese concurso, pulsa «Cargar» con el número #${row[0] + 1} para ver si se cumplió.</div></div></div>`;
+  }
   const bolas = (arr, marcar) => `<div class="balls">${arr.map((v) => `<span class="ball${marcar && v % 3 === 0 ? " f369" : ""}">${String(v).padStart(2, "0")}</span>`).join("")}</div>`;
-  let h = "";
+  let h = origen;
   h += `<div class="mf-paso"><span class="n">1</span><div><div class="t">Suma total: ${MF_NOMBRE[a.r]}</div><div class="d">${part.join(" + ")} = <b>${cadena(a.total)}</b></div>${bolas(part, true)}${part.length === 4 ? `<div class="hint">La ley menciona grupos de 3, 5, 6 o más números; con 4 está por confirmar.</div>` : ""}</div></div>`;
   h += `<div class="mf-paso"><span class="n">2</span><div><div class="t">${a.con ? `Familias 3, 6 y 9: con ${a.con}` : "Familias 3, 6 y 9: ninguno"}</div><div class="d">${a.m3.length ? `${a.m3.join(" + ")} = <b>${cadena(a.s3)}</b>` : "Ningún participante es múltiplo de 3."}</div></div></div>`;
   if (!a.esperado) {
@@ -2824,6 +2855,24 @@ function mfVerificar() {
   out.innerHTML = h;
 }
 ["mf-part", "mf-gan"].forEach((id) => $(id).addEventListener("input", mfVerificar));
+// «Usar el último sorteo»: los ganadores más recientes se vuelven los participantes
+let MF_ORIGEN = null;
+function siguienteHora(g, row) {
+  const h = HORARIOS[g] || [], actual = horaDe(g, row);
+  if (h.length < 2 || !actual) return "";
+  const i = h.indexOf(actual);
+  return i < h.length - 1 ? `hoy ${h[i + 1]}` : `al día siguiente, ${h[0]}`;
+}
+$("mf-ultimo").addEventListener("click", () => {
+  const g = $("mf-sorteo").value, row = rowsOf(g)[0];
+  if (!row) return;
+  const nums = [...new Set(numsOf(row, g))].sort((x, y) => x - y);
+  MF_ORIGEN = { g, row, clave: nums.join(",") };
+  $("mf-part").value = nums.join(", ");
+  $("mf-gan").value = "";
+  $("mf-conc").value = row[0] + 1;
+  mfVerificar();
+});
 $("mf-fuente").addEventListener("change", mfVerificar);
 $("mf-sorteo").addEventListener("change", () => { $("mf-conc").value = ""; $("mf-conc").placeholder = `Concurso (último ${(rowsOf($("mf-sorteo").value)[0] || [""])[0]})`; });
 $("mf-cargar").addEventListener("click", () => {
@@ -2975,6 +3024,7 @@ function adoptData(d) {
 }
 function refreshAfterData() {
   for (const k of Object.keys(REP)) delete REP[k];
+  for (const k of Object.keys(HORA_CACHE)) delete HORA_CACHE[k];
   sideCard();
   if (!$("view-historico").hidden) { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
   if (!$("view-reglas").hidden) renderRules();
