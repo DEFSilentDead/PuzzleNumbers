@@ -89,7 +89,9 @@ body {
   background: var(--card); border-right: 1px solid var(--line); backdrop-filter: blur(14px);
   padding-block: 28px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: 20px;
   display: flex; flex-direction: column; gap: 34px; position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; scrollbar-width: thin;
 }
+.side > * { flex-shrink: 0; }
 .brand { display: flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; }
 .logo { position: relative; width: 30px; height: 30px; flex: none; }
 .logo::before { content: ""; position: absolute; left: 0; bottom: 0; width: 19px; height: 19px; border-radius: 6px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
@@ -117,6 +119,15 @@ body {
 .sc-games button:hover { background: var(--sunk); }
 .sc-games button[aria-pressed="true"] { background: var(--gc); color: var(--card-solid); }
 .sc-body { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.sc-prox { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.sc-prox ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.sc-prox li { font-size: 11.5px; line-height: 1.35; color: var(--ink); font-variant-numeric: tabular-nums; }
+.sc-prox li.pend { color: var(--muted); }
+.sc-prox li.sig b { color: var(--accent); }
+.sc-tag { display: inline-block; margin-left: 5px; font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 99px; background: var(--sunk); color: var(--muted); vertical-align: 1px; }
+.sc-prox li.pend .sc-tag { background: var(--mark-soft); color: var(--mark); }
+.sc-prox li.sig .sc-tag { background: var(--accent-soft); color: var(--accent); }
+.sc-prox .d { font-size: 10.5px; line-height: 1.35; }
 .side-card.min { gap: 8px; padding: 12px 14px; }
 .side-card.min .sc-games, .side-card.min .sc-body { display: none; }
 .side-card.min .sc-toggle svg { transform: rotate(180deg); }
@@ -326,6 +337,26 @@ tr.top td { font-weight: 700; }
 .reg-btn { margin-left: auto; width: 26px; height: 26px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--card-solid); color: var(--accent); font-weight: 800; cursor: pointer; padding: 0; line-height: 1; }
 .combo .seen + .reg-btn { margin-left: 6px; }
 .reg-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+/* Tooltips de las gráficas */
+.tip { position: fixed; left: 0; top: 0; z-index: 40; width: max-content; max-width: min(340px, calc(100vw - 20px)); background: var(--card-solid); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 16px 40px rgba(20, 15, 40, .22); padding: 11px 13px; font-size: 12.5px; line-height: 1.4; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; }
+.tip.on { opacity: 1; transform: none; }
+.tip .tt { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--head); margin-bottom: 8px; font-size: 13.5px; }
+.tip .tt .ball { width: 26px; height: 26px; font-size: 12px; background: var(--accent-soft); color: var(--accent); }
+.tip dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 0; }
+.tip dt { color: var(--muted); white-space: nowrap; }
+.tip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.tip dd.up { color: var(--accent); font-weight: 700; }
+.tip dd.down { color: var(--mark); font-weight: 700; }
+.tip-sub { color: var(--muted); font-size: 11.5px; }
+.tip-nota { margin: 8px 0 0; padding-top: 7px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11.5px; }
+.fcol { cursor: pointer; border-radius: 6px; outline-offset: 2px; }
+.fcol:hover .fbar, .fcol.tip-on .fbar { opacity: 1; filter: brightness(1.1); }
+.fcol.tip-on .flab { color: var(--ink); font-weight: 700; }
+[data-tip].ball { cursor: pointer; }
+[data-tip].ball.tip-on { box-shadow: 0 0 0 2px var(--accent); }
+.bar-tip { cursor: pointer; height: 10px; border-radius: 5px; }
+.bar-tip:hover, .bar-tip.tip-on { filter: brightness(1.12); box-shadow: 0 0 0 2px var(--accent-soft); }
 
 /* Proyecto Morfeo: verificador */
 .mf-ver-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr); gap: 12px; align-items: end; }
@@ -590,6 +621,7 @@ a.link:hover { text-decoration: underline; }
       <div class="sc-body" id="side-body">
         <div class="balls" id="side-balls"></div>
         <span class="d" id="side-date"></span>
+        <div class="sc-prox" id="side-prox"></div>
         <a class="btn sm primary" href="#historico" id="side-link">Ver histórico</a>
       </div>
     </div>
@@ -1795,13 +1827,15 @@ function renderPrizes() {
   $("prz-note").textContent = note;
   if (!rows.length) { $("prizes").innerHTML = ""; return; }
   const maxP = rows.reduce((m, r) => { const x = Number((r.num * 10n ** 9n) / r.den) / 1e9; return Math.max(m, x); }, 0) || 1;
+  PREMIOS_TIP = [];
   const row = (r, top) => {
     const prob = Number((r.num * 10n ** 12n) / r.den) / 1e12;
     const w = Math.max(0.5, (prob / maxP) * 100);
+    const i = PREMIOS_TIP.push({ ...r, top }) - 1;
     return `<tr class="${top ? "top" : ""}"><td>${r.label}${top ? '<span class="pill">premio mayor</span>' : ""}</td>
       <td class="num-c r">${r.num === 0n ? "—" : oneIn(r.den, r.num)}</td>
       <td class="num-c r">${r.num === 0n ? "0 %" : pct(r.num, r.den)}</td>
-      <td class="bar-cell">${r.num === 0n ? "" : `<div class="bar" style="width:${w}%"></div>`}</td></tr>`;
+      <td class="bar-cell">${r.num === 0n ? "" : `<div class="bar bar-tip" data-tip="prem:${i}" tabindex="0" role="img" aria-label="${r.label}: ${oneIn(r.den, r.num)}" style="width:${w}%"></div>`}</td></tr>`;
   };
   let h = `<table><thead><tr><th>Aciertos</th><th class="r">Probabilidad</th><th class="r">%</th><th></th></tr></thead><tbody>`;
   rows.forEach((r, i) => (h += row(r, i === 0)));
@@ -2143,7 +2177,61 @@ function sideCard() {
   document.querySelectorAll("#side-games button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.g === sideGame)));
   $("side-balls").innerHTML = ballsHtml(rows[0], sideGame);
   $("side-date").textContent = `Concurso ${rows[0][0]} · ${fechaHora(sideGame, rows[0])}`;
+  // Siguientes concursos con su hora
+  const prox = proximosSorteos(sideGame, rows[0]);
+  const pend = prox.filter((p) => p.pasado), fut = prox.filter((p) => !p.pasado);
+  const li = (p, cls, tag) => `<li class="${cls}"><b>#${p.conc}</b> ${p.cuando}${p.nombre ? ` · ${p.nombre}` : ""}${tag ? `<span class="sc-tag">${tag}</span>` : ""}</li>`;
+  let hp = `<span class="k">Siguientes concursos</span><ul>`;
+  hp += pend.slice(0, 4).map((p) => li(p, "pend", "por publicar")).join("");
+  if (pend.length > 4) hp += `<li class="pend">y ${pend.length - 4} más por publicar</li>`;
+  hp += fut.slice(0, 2).map((p, i) => li(p, i === 0 ? "sig" : "", i === 0 ? "siguiente" : "")).join("");
+  hp += `</ul>`;
+  if (pend.length) hp += `<span class="d">«Por publicar»: ya se sorteó, pero Lotería Nacional aún no lo sube a su histórico (suele hacerlo al día siguiente).</span>`;
+  $("side-prox").innerHTML = hp;
 }
+
+/* Próximos sorteos a partir del último publicado, con la hora de Ciudad de México */
+const DIAS_MELATE = [0, 3, 5]; // domingo, miércoles y viernes a las 21:00
+function ahoraMX() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+  return { fecha: Number(p.year + p.month + p.day), hm: (Number(p.hour) % 24) * 100 + Number(p.minute) };
+}
+function sumarDias(f, n) {
+  const d = new Date(Date.UTC(Math.floor(f / 10000), (Math.floor(f / 100) % 100) - 1, f % 100 + n));
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+const diaSemana = (f) => new Date(Date.UTC(Math.floor(f / 10000), (Math.floor(f / 100) % 100) - 1, f % 100)).getUTCDay();
+function proximosSorteos(g, ultimo) {
+  const ahora = ahoraMX(), out = [];
+  const etiqueta = (f) => (f === ahora.fecha ? "hoy" : f === sumarDias(ahora.fecha, 1) ? "mañana" : f === sumarDias(ahora.fecha, -1) ? "ayer" : fdate(f).replace(/ \d{4}$/, ""));
+  const add = (conc, f, hora, nombre) => {
+    const hm = Number(hora.slice(0, 2)) * 100 + Number(hora.slice(3, 5));
+    // se considera sorteado 15 minutos después de la hora
+    const pasado = f < ahora.fecha || (f === ahora.fecha && ahora.hm >= hm + 15);
+    out.push({ conc, fecha: f, hora, nombre, pasado, cuando: `${etiqueta(f)} ${hora}` });
+  };
+  let conc = ultimo[0], f = ultimo[1];
+  if (g === "chispazo" || g === "tris") {
+    const h = HORARIOS[g];
+    let i = h.indexOf(horaDe(g, ultimo));
+    if (i < 0) i = h.length - 1;
+    for (let n = 0; n < 40; n++) {
+      i++; if (i >= h.length) { i = 0; f = sumarDias(f, 1); }
+      const [hora, nombre] = h[i].split(" · ");
+      add(++conc, f, hora, nombre || "");
+      if (out.filter((p) => !p.pasado).length >= 2) break;
+    }
+  } else {
+    for (let n = 0; n < 30; n++) {
+      f = sumarDias(f, 1);
+      if (!DIAS_MELATE.includes(diaSemana(f))) continue;
+      add(++conc, f, "21:00", "");
+      if (out.filter((p) => !p.pasado).length >= 2) break;
+    }
+  }
+  return out;
+}
+setInterval(() => { if (!$("side-card").hidden && !sideMin) sideCard(); }, 60000);
 $("side-games").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-g]"); if (!b) return;
   sideGame = b.dataset.g;
@@ -2266,11 +2354,13 @@ function renderFreq() {
   const nHot = G.digits ? 3 : 6;
   const hot = new Set(sorted.slice(0, nHot).map((x) => x[0]));
   const cold = new Set(sorted.slice(-nHot).map((x) => x[0]));
+  // Datos para los tooltips de la gráfica
+  FREQ = { g, sorteos: rows.length, cnt, lugar: new Map(sorted.map(([v], i) => [v, i + 1])), total: list.length, periodo: $("h-period").selectedOptions[0].textContent.toLowerCase() };
   const fq = $("h-freq");
   fq.style.gridTemplateColumns = `repeat(${list.length}, minmax(16px, 1fr))`;
   fq.style.minWidth = list.length * 19 + "px";
-  fq.innerHTML = list.map(([v, c]) => `<div class="fcol${hot.has(v) ? " hot" : cold.has(v) ? " cold" : ""}" title="${hpad(v, g)}: ${c} veces"><div class="fbar" style="height:${Math.max(2, (c / max) * 150)}px"></div><span class="flab">${hpad(v, g)}</span></div>`).join("");
-  const b = (arr) => arr.map(([v, c]) => `<span class="ball lg" title="${c} veces">${hpad(v, g)}</span>`).join("");
+  fq.innerHTML = list.map(([v, c]) => `<div class="fcol${hot.has(v) ? " hot" : cold.has(v) ? " cold" : ""}" data-tip="freq:${v}" tabindex="0" role="img" aria-label="${hpad(v, g)}: ${c} veces"><div class="fbar" style="height:${Math.max(2, (c / max) * 150)}px"></div><span class="flab">${hpad(v, g)}</span></div>`).join("");
+  const b = (arr) => arr.map(([v, c]) => `<span class="ball lg" data-tip="freq:${v}" tabindex="0" aria-label="${hpad(v, g)}: ${c} veces">${hpad(v, g)}</span>`).join("");
   $("h-hot").innerHTML = b(sorted.slice(0, nHot)) + `<span class="hint" style="align-self:center">${sorted.slice(0, nHot).map((x) => x[1]).join(" · ")} veces</span>`;
   $("h-cold").innerHTML = b(sorted.slice(-nHot).reverse()) + `<span class="hint" style="align-self:center">${sorted.slice(-nHot).reverse().map((x) => x[1]).join(" · ")} veces</span>`;
   $("f-aux").textContent = `en ${rows.length.toLocaleString("es-MX")} sorteos`;
@@ -2930,6 +3020,92 @@ function mfHistorico() {
   out.innerHTML = h;
 }
 $("mf-h-calc").addEventListener("click", mfHistorico);
+
+/* ---------- Tooltips de las gráficas ---------- */
+let FREQ = null, PREMIOS_TIP = [];
+const UNIVERSO = { melate: 56, revancha: 56, revanchita: 56, chispazo: 28, tris: 10 };
+const pctTxt = (x) => (x * 100).toLocaleString("es-MX", { maximumFractionDigits: x < 0.01 ? 2 : 1 }) + " %";
+function ultimaVez(g, v) {
+  const rows = rowsOf(g);
+  for (let i = 0; i < rows.length; i++) if (numsOf(rows[i], g).includes(v)) return { row: rows[i], hace: i };
+  return null;
+}
+function tipFreq(v) {
+  if (!FREQ) return "";
+  const { g, sorteos, cnt, lugar, total, periodo } = FREQ, G = GAMES[g];
+  const c = cnt.get(v) || 0, N = UNIVERSO[g], k = G.k;
+  const esperado = (sorteos * k) / N, dif = c - esperado;
+  const u = ultimaVez(g, v);
+  const pSig = G.digits ? 1 - Math.pow(1 - 1 / N, k) : k / N;
+  const nombre = G.digits ? `Dígito ${v}` : `Número ${hpad(v, g)}`;
+  const ult = u ? `#${u.row[0]} · ${fechaHora(g, u.row)}<br><span class="tip-sub">${u.hace === 0 ? "salió en el último sorteo" : `hace ${u.hace.toLocaleString("es-MX")} sorteo${u.hace === 1 ? "" : "s"}`}</span>` : "nunca";
+  return `<div class="tt"><span class="ball">${hpad(v, g)}</span>${nombre} · ${G.name}</div>
+    <dl>
+      <dt>Veces que salió</dt><dd><b>${c.toLocaleString("es-MX")}</b></dd>
+      <dt>En el periodo</dt><dd>${periodo}, ${sorteos.toLocaleString("es-MX")} sorteos</dd>
+      <dt>${G.digits ? "Apariciones por sorteo" : "Salió en"}</dt><dd>${G.digits ? (c / Math.max(1, sorteos)).toFixed(2) : pctTxt(c / Math.max(1, sorteos)) + " de los sorteos"}</dd>
+      <dt>Esperado por azar</dt><dd>${esperado.toLocaleString("es-MX", { maximumFractionDigits: 1 })} veces</dd>
+      <dt>Diferencia</dt><dd class="${dif >= 0 ? "up" : "down"}">${dif >= 0 ? "+" : "−"}${Math.abs(dif).toLocaleString("es-MX", { maximumFractionDigits: 1 })}</dd>
+      <dt>Lugar</dt><dd>${lugar.get(v)}.º de ${total} más frecuente</dd>
+      <dt>Última vez</dt><dd>${ult}</dd>
+      <dt>En el siguiente concurso</dt><dd><b>${pctTxt(pSig)}</b> (1 en ${(1 / pSig).toLocaleString("es-MX", { maximumFractionDigits: 1 })})${G.digits ? `<br><span class="tip-sub">en cualquier posición; 10 % en una posición exacta</span>` : ""}</dd>
+    </dl>
+    <p class="tip-nota">La probabilidad del siguiente concurso es igual para todos ${G.digits ? "los dígitos" : "los números"}: lo que salió antes no la cambia.</p>`;
+}
+function tipPrem(i) {
+  const r = PREMIOS_TIP[i];
+  if (!r || r.num === 0n) return "";
+  const cada = Number((r.den * 100n) / r.num) / 100;
+  const precio = Number(S.price) || 0;
+  const costo = precio ? cada * precio : 0;
+  return `<div class="tt">${r.label}${r.top ? ' <span class="pill">premio mayor</span>' : ""}</div>
+    <dl>
+      <dt>Probabilidad</dt><dd><b>${oneIn(r.den, r.num)}</b></dd>
+      <dt>Porcentaje</dt><dd>${pct(r.num, r.den)}</dd>
+      <dt>En promedio</dt><dd>una vez cada ${Math.round(cada).toLocaleString("es-MX")} boleto${Math.round(cada) === 1 ? "" : "s"}</dd>
+      ${precio ? `<dt>Gasto promedio para atinarlo</dt><dd>${"$" + Math.round(costo).toLocaleString("es-MX")}<br><span class="tip-sub">a $${precio} por boleto</span></dd>` : ""}
+    </dl>
+    <p class="tip-nota">Es un promedio a largo plazo; cada boleto tiene la misma probabilidad.</p>`;
+}
+const TIP_FN = { freq: (x) => tipFreq(Number(x)), prem: (x) => tipPrem(Number(x)) };
+const tipEl = document.createElement("div");
+tipEl.className = "tip"; tipEl.setAttribute("role", "tooltip"); tipEl.id = "tooltip";
+document.body.appendChild(tipEl);
+let tipTarget = null;
+function tipShow(t) {
+  const [tipo, val] = t.dataset.tip.split(":");
+  const html = TIP_FN[tipo] ? TIP_FN[tipo](val) : "";
+  if (!html) return tipHide();
+  if (tipTarget && tipTarget !== t) tipTarget.classList.remove("tip-on");
+  tipTarget = t; t.classList.add("tip-on"); t.setAttribute("aria-describedby", "tooltip");
+  tipEl.innerHTML = html;
+  tipEl.classList.add("on");
+  const r = t.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight, m = 10, W = window.innerWidth, Hh = window.innerHeight;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, hi));
+  let x, y;
+  if (r.top - h - 10 >= m) { x = r.left + r.width / 2 - w / 2; y = r.top - h - 10; }          // arriba
+  else if (r.bottom + 10 + h <= Hh - m) { x = r.left + r.width / 2 - w / 2; y = r.bottom + 10; } // abajo
+  else {                                                                                       // al lado
+    y = clamp(r.top + r.height / 2 - h / 2, m, Hh - h - m);
+    x = r.right + 12 + w <= W - m ? r.right + 12 : r.left - 12 - w;
+  }
+  tipEl.style.left = clamp(x, m, W - w - m) + "px"; tipEl.style.top = clamp(y, m, Hh - h - m) + "px";
+}
+function tipHide() {
+  if (tipTarget) { tipTarget.classList.remove("tip-on"); tipTarget.removeAttribute("aria-describedby"); }
+  tipTarget = null; tipEl.classList.remove("on");
+}
+document.addEventListener("pointerover", (e) => { if (e.pointerType === "touch") return; const t = e.target.closest("[data-tip]"); if (t) { if (t !== tipTarget) tipShow(t); } else if (tipTarget) tipHide(); });
+document.addEventListener("focusin", (e) => { const t = e.target.closest("[data-tip]"); if (t) tipShow(t); });
+document.addEventListener("focusout", (e) => { if (e.target === tipTarget) tipHide(); });
+document.addEventListener("click", (e) => { // en celular: tocar abre o cierra
+  const t = e.target.closest("[data-tip]");
+  if (t) { if (t === tipTarget && e.pointerType === "touch") tipHide(); else tipShow(t); }
+  else if (tipTarget) tipHide();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && tipTarget) tipHide(); });
+window.addEventListener("scroll", () => tipTarget && tipHide(), { passive: true, capture: true });
+window.addEventListener("resize", () => tipTarget && tipHide());
 
 /* ---------- Guía: índice y ejemplos ---------- */
 $("view-guia").addEventListener("click", (e) => {
