@@ -327,6 +327,30 @@ tr.top td { font-weight: 700; }
 .combo .seen + .reg-btn { margin-left: 6px; }
 .reg-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
 
+/* Proyecto Morfeo: verificador */
+.mf-ver-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr); gap: 12px; align-items: end; }
+.mf-cargar { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-cargar select { width: auto; }
+.mf-cargar input { width: 120px; }
+.mf-ejs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.mf-salida { display: flex; flex-direction: column; gap: 10px; }
+.mf-paso { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card-solid); }
+.mf-paso > .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: var(--sunk); color: var(--head); }
+.mf-paso .t { font-weight: 700; margin-bottom: 4px; }
+.mf-paso .d { color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.mf-paso .d b { color: var(--ink); }
+.mf-paso .balls { margin-top: 6px; }
+.mf-paso.ok { border-color: var(--accent); }
+.mf-paso.ok > .n { background: var(--accent); color: var(--accent-ink); }
+.mf-paso.no { border-color: var(--mark); }
+.mf-paso.no > .n { background: var(--mark); color: var(--on-mark); }
+.mf-set { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+.mf-veredicto { font-size: 16px; font-weight: 800; }
+.mf-paso.ok .mf-veredicto { color: var(--accent); }
+.mf-paso.no .mf-veredicto { color: var(--mark); }
+.ball.f369 { box-shadow: inset 0 0 0 2px var(--mark); }
+@media (max-width: 760px) { .mf-ver-grid { grid-template-columns: minmax(0, 1fr); } }
+
 /* Proyecto Morfeo */
 .mf-r { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 99px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--accent-ink); font-weight: 800; font-size: 13px; }
 .mf-ejemplos { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -984,6 +1008,46 @@ a.link:hover { text-decoration: underline; }
           <span class="ex-q">Ejemplo: participantes 1, 3, 10, 11, 12, 19, 28</span>
           <span class="ex-a">Suma 84 → reduce a <b>3</b> (TRES). Familias 3/6/9: 3 y 12 → 15 → <b>6</b>. Fila: <b>TRES con 6</b>.</span>
         </div>
+      </section>
+
+      <section class="panel gsec" id="mf-verificador">
+        <h2>Verificador de la ley</h2>
+        <p>Escribe los números participantes y la página aplica la ley paso a paso. Si además das el resultado de un sorteo, revisa si se cumplió.</p>
+        <div class="mf-ver-grid">
+          <div class="field mf-wide"><label for="mf-part">Números participantes</label><input id="mf-part" type="text" placeholder="Ej. 1, 3, 10, 11, 12, 19, 28"></div>
+          <div class="field"><label for="mf-fuente">Resultados según</label>
+            <select id="mf-fuente"><option value="tabla">La tabla del Excel</option><option value="texto">El texto (solo suma UNO)</option></select>
+          </div>
+        </div>
+        <div class="mf-ver-grid">
+          <div class="field mf-wide"><label for="mf-gan">Números ganadores para comparar (opcional)</label><input id="mf-gan" type="text" placeholder="Ej. 3, 12, 16, 17, 23"></div>
+          <div class="field"><label for="mf-sorteo">o tómalos de un concurso</label>
+            <div class="mf-cargar">
+              <select id="mf-sorteo" aria-label="Sorteo"><option value="chispazo">Chispazo</option><option value="melate">Melate</option><option value="revancha">Revancha</option><option value="revanchita">Revanchita</option></select>
+              <input id="mf-conc" type="number" inputmode="numeric" min="1" placeholder="Concurso" aria-label="Número de concurso">
+              <button class="btn" type="button" id="mf-cargar">Cargar</button>
+            </div>
+          </div>
+        </div>
+        <div class="mf-ejs">
+          <span class="hint">Ejemplos de tus boletos:</span>
+          <button class="btn sm" type="button" data-mf-ej="1,3,10,11,12,19,28|3,12,16,17,23">1, 3, 10, 11, 12, 19, 28</button>
+          <button class="btn sm" type="button" data-mf-ej="1,7,10,19,27,28|1,3,8,27,28">1, 7, 10, 19, 27, 28</button>
+          <button class="btn sm" type="button" data-mf-ej="2,5,8,14,17,23,26|2,3,12,15,17">2, 5, 8, 14, 17, 23, 26</button>
+        </div>
+        <div id="mf-salida" class="mf-salida"></div>
+        <p class="hint">Interpretación provisional, pendiente de confirmar con el doctor: «con 3/6/9» es la reducción de la <b>suma</b> de los participantes de las familias 3, 6 y 9, y «los ganadores sumarán» es la reducción de la <b>suma de todos</b> los ganadores.</p>
+      </section>
+
+      <section class="panel gsec" id="mf-historico">
+        <h2>¿Qué tan seguido se ha cumplido?</h2>
+        <p>Prueba la ley con todo el histórico: en cada sorteo toma como participantes los ganadores del sorteo anterior y revisa si el siguiente cumplió. Compara el resultado con lo que se esperaría por puro azar.</p>
+        <div class="mf-cargar">
+          <select id="mf-h-sorteo" aria-label="Sorteo"><option value="chispazo">Chispazo</option><option value="melate">Melate</option><option value="revancha">Revancha</option><option value="revanchita">Revanchita</option></select>
+          <select id="mf-h-fuente" aria-label="Resultados según"><option value="tabla">Tabla del Excel</option><option value="texto">Texto (solo suma UNO)</option></select>
+          <button class="btn primary" type="button" id="mf-h-calc">Calcular</button>
+        </div>
+        <div id="mf-h-salida"></div>
       </section>
 
       <section class="panel gsec" id="mf-reglas">
@@ -2690,6 +2754,133 @@ $("list").addEventListener("click", (e) => {
 const _ptRenderOrig = ptRender;
 ptRender = function () { _ptRenderOrig(); if (PT.pendiente && !$("pt-nueva").hidden) { const x = PT.pendiente; PT.pendiente = null; ptAbrirForm(x); } };
 setInterval(() => { if (PT.estado === "ok" && !$("view-participaciones").hidden && !PT.premioEdit && !PT.borrando) ptRender(); }, 60000);
+
+/* ---------- Proyecto Morfeo: verificador de la ley ---------- */
+// Tabla «Leyes de Mario C.V.V.»: [suma total][con] → pareja, opuesto y final (reducciones esperadas de los ganadores).
+// NUEVE reúne los dos bloques del Excel (el segundo dice «también»).
+const MF_TABLA = {
+  1: { 3: { p: [2, 8], o: [8], f: [1] }, 6: { p: [8, 5], o: [8], f: [4] }, 9: { p: [5, 2], o: [8], f: [7] } },
+  2: { 3: { p: [1, 7], o: [7], f: [8] }, 6: { p: [7, 4], o: [7], f: [2] }, 9: { p: [4, 1], o: [7], f: [5] } },
+  3: { 3: { p: [3], o: [5], f: [8] }, 6: { p: [9], o: [5], f: [5] }, 9: { p: [6], o: [5], f: [2] } },
+  4: { 3: { p: [8, 5], o: [5], f: [4] }, 6: { p: [5, 2], o: [5], f: [7] }, 9: { p: [8, 2], o: [5], f: [1] } },
+  5: { 3: { p: [7, 4], o: [4], f: [2] }, 6: { p: [4, 1], o: [4], f: [5] }, 9: { p: [7, 1], o: [4], f: [8] } },
+  6: { 3: { p: [9], o: [5], f: [8] }, 6: { p: [6], o: [5], f: [5] }, 9: { p: [3], o: [5], f: [2] } },
+  7: { 3: { p: [5, 2], o: [2], f: [7] }, 6: { p: [8, 2], o: [2], f: [1] }, 9: { p: [8, 5], o: [2], f: [4] } },
+  8: { 3: { p: [4, 1], o: [1], f: [5] }, 6: { p: [7, 1], o: [1], f: [8] }, 9: { p: [7, 4], o: [1], f: [2] } },
+  9: { 3: { p: [6, 4, 5], o: [5, 7], f: [8, 1] }, 6: { p: [3, 1, 8], o: [5, 7], f: [5, 4] }, 9: { p: [9, 7, 2], o: [5, 7], f: [2, 7] } },
+};
+const MF_TEXTO = { 3: [8, 5, 4], 6: [2, 8, 1], 9: [5, 2, 8, 7, 1] }; // solo para suma total UNO
+const MF_NOMBRE = ["", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+const raiz = (n) => (n <= 0 ? 0 : 1 + ((n - 1) % 9));
+function cadena(n) { // 84 → 12 → 3
+  const pasos = [n];
+  while (n > 9) { n = String(n).split("").reduce((s, d) => s + Number(d), 0); pasos.push(n); }
+  return pasos.join(" → ");
+}
+const mfChips = (arr) => [...new Set(arr)].sort((a, b) => a - b).map((v) => `<span class="mf-r">${v}</span>`).join("");
+
+// Aplica la ley a unos participantes. Devuelve null si no hay fila.
+function mfAplicar(part, fuente) {
+  const total = part.reduce((s, v) => s + v, 0), r = raiz(total);
+  const m3 = part.filter((v) => v % 3 === 0);
+  const s3 = m3.reduce((s, v) => s + v, 0), con = m3.length ? raiz(s3) : null;
+  let esperado = null, detalle = null, motivo = "";
+  if (con == null) motivo = "No hay participantes de las familias 3, 6 o 9: la ley no tiene fila para este caso.";
+  else if (fuente === "texto") {
+    if (r === 1) esperado = MF_TEXTO[con];
+    else motivo = "El texto solo tiene reglas para cuando la suma total es UNO. Prueba con «la tabla del Excel».";
+  } else {
+    detalle = MF_TABLA[r][con];
+    esperado = [...detalle.p, ...detalle.o, ...detalle.f];
+  }
+  return { total, r, m3, s3, con, esperado: esperado ? [...new Set(esperado)] : null, detalle, motivo };
+}
+
+function mfLeer(id) { return [...new Set(parseTyped($(id).value).nums)].filter((v) => v >= 0 && v <= 99); }
+
+function mfVerificar() {
+  const part = mfLeer("mf-part"), gan = mfLeer("mf-gan"), fuente = $("mf-fuente").value;
+  const out = $("mf-salida");
+  if (!part.length) { out.innerHTML = ""; return; }
+  if (part.length < 3) { out.innerHTML = `<p class="msg">Escribe al menos 3 números participantes.</p>`; return; }
+  const a = mfAplicar(part, fuente);
+  const bolas = (arr, marcar) => `<div class="balls">${arr.map((v) => `<span class="ball${marcar && v % 3 === 0 ? " f369" : ""}">${String(v).padStart(2, "0")}</span>`).join("")}</div>`;
+  let h = "";
+  h += `<div class="mf-paso"><span class="n">1</span><div><div class="t">Suma total: ${MF_NOMBRE[a.r]}</div><div class="d">${part.join(" + ")} = <b>${cadena(a.total)}</b></div>${bolas(part, true)}${part.length === 4 ? `<div class="hint">La ley menciona grupos de 3, 5, 6 o más números; con 4 está por confirmar.</div>` : ""}</div></div>`;
+  h += `<div class="mf-paso"><span class="n">2</span><div><div class="t">${a.con ? `Familias 3, 6 y 9: con ${a.con}` : "Familias 3, 6 y 9: ninguno"}</div><div class="d">${a.m3.length ? `${a.m3.join(" + ")} = <b>${cadena(a.s3)}</b>` : "Ningún participante es múltiplo de 3."}</div></div></div>`;
+  if (!a.esperado) {
+    h += `<div class="mf-paso no"><span class="n">3</span><div><div class="t">Sin regla</div><div class="d">${a.motivo}</div></div></div>`;
+    out.innerHTML = h;
+    return;
+  }
+  const filaTxt = fuente === "texto" ? `Regla del texto: UNO con ${a.con}` : `Fila ${MF_NOMBRE[a.r]} con ${a.con}`;
+  const det = a.detalle ? `<div class="d">Pareja ${a.detalle.p.join(" · ")} · opuesto ${a.detalle.o.join(" · ")} · final ${a.detalle.f.join(" · ")}</div>` : "";
+  h += `<div class="mf-paso"><span class="n">3</span><div><div class="t">${filaTxt}: los ganadores deberían sumar</div>${det}<div class="mf-set">${mfChips(a.esperado)}</div><div class="hint">${a.esperado.length} de 9 sumas posibles. Si los sorteos fueran puro azar, se cumpliría cerca del ${Math.round((a.esperado.length / 9) * 100)} % de las veces.</div></div></div>`;
+  if (gan.length) {
+    const sg = gan.reduce((s, v) => s + v, 0), rg = raiz(sg), cumple = a.esperado.includes(rg);
+    const individuales = gan.filter((v) => a.esperado.includes(raiz(v))).length;
+    h += `<div class="mf-paso ${cumple ? "ok" : "no"}"><span class="n">4</span><div><div class="mf-veredicto">${cumple ? "✓ Se cumplió" : "✗ No se cumplió"}</div><div class="d">Ganadores: ${gan.join(" + ")} = <b>${cadena(sg)}</b>. ${cumple ? `${rg} está entre las sumas esperadas.` : `${rg} no está entre las sumas esperadas.`}</div><div class="hint">Otra lectura posible: ${individuales} de ${gan.length} ganadores reducen, cada uno, a una de esas sumas.</div></div></div>`;
+  }
+  out.innerHTML = h;
+}
+["mf-part", "mf-gan"].forEach((id) => $(id).addEventListener("input", mfVerificar));
+$("mf-fuente").addEventListener("change", mfVerificar);
+$("mf-sorteo").addEventListener("change", () => { $("mf-conc").value = ""; $("mf-conc").placeholder = `Concurso (último ${(rowsOf($("mf-sorteo").value)[0] || [""])[0]})`; });
+$("mf-cargar").addEventListener("click", () => {
+  const g = $("mf-sorteo").value, rows = rowsOf(g);
+  if (!rows.length) return;
+  const c = parseInt($("mf-conc").value, 10);
+  const row = Number.isFinite(c) ? rows.find((r) => r[0] === c) : rows[0];
+  if (!row) { $("mf-salida").insertAdjacentHTML("afterbegin", `<p class="msg">No encontré el concurso ${c} de ${GAMES[g].name} en el histórico.</p>`); return; }
+  $("mf-conc").value = row[0];
+  $("mf-gan").value = numsOf(row, g).join(", ");
+  mfVerificar();
+});
+$("view-morfeo").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-mf-ej]"); if (!b) return;
+  const [p, g] = b.dataset.mfEj.split("|");
+  $("mf-part").value = p.split(",").join(", ");
+  $("mf-gan").value = g.split(",").join(", ");
+  mfVerificar();
+});
+
+/* Comprobación con todo el histórico: los ganadores de cada sorteo son los participantes del siguiente */
+function mfHistorico() {
+  const g = $("mf-h-sorteo").value, fuente = $("mf-h-fuente").value, rows = rowsOf(g), k = GAMES[g].k;
+  const out = $("mf-h-salida");
+  if (rows.length < 50) { out.innerHTML = `<p class="hint">No hay suficientes sorteos de ${GAMES[g].name} en el histórico.</p>`; return; }
+  const base = Array(10).fill(0);
+  for (const r of rows) base[raiz(r.slice(2, 2 + k).reduce((s, v) => s + (v || 0), 0))]++;
+  const N = rows.length;
+  let casos = 0, cumple = 0, esperado = 0, sinFila = 0;
+  const porFila = new Map();
+  for (let i = 0; i < rows.length - 1; i++) {
+    const prev = rows[i + 1].slice(2, 2 + k), next = rows[i].slice(2, 2 + k);
+    const a = mfAplicar(prev, fuente);
+    if (!a.esperado) { sinFila++; continue; }
+    const ok = a.esperado.includes(raiz(next.reduce((s, v) => s + v, 0)));
+    const pAzar = a.esperado.reduce((s, d) => s + base[d], 0) / N;
+    casos++; if (ok) cumple++; esperado += pAzar;
+    const key = fuente === "texto" ? `UNO con ${a.con}` : `${MF_NOMBRE[a.r]} con ${a.con}`;
+    const f = porFila.get(key) || { casos: 0, cumple: 0, azar: 0 };
+    f.casos++; if (ok) f.cumple++; f.azar += pAzar;
+    porFila.set(key, f);
+  }
+  if (!casos) { out.innerHTML = `<p class="hint">Ningún sorteo cumplió las condiciones para aplicar la ley.</p>`; return; }
+  const pc = (x, n) => (n ? ((100 * x) / n).toFixed(1) + " %" : "—");
+  const dif = (100 * cumple) / casos - (100 * esperado) / casos;
+  let h = `<div class="cards4" style="margin-top:6px">
+    <div class="hcard"><span class="k">Sorteos donde aplicó</span><span class="v">${casos.toLocaleString("es-MX")}</span><span class="s">${sinFila.toLocaleString("es-MX")} sin fila aplicable</span></div>
+    <div class="hcard"><span class="k">Se cumplió</span><span class="v">${pc(cumple, casos)}</span><span class="s">${cumple.toLocaleString("es-MX")} veces</span></div>
+    <div class="hcard"><span class="k">Esperado por puro azar</span><span class="v">${pc(esperado, casos)}</span><span class="s">con las mismas sumas elegidas al azar</span></div>
+    <div class="hcard"><span class="k">Diferencia</span><span class="v ${dif >= 0 ? "pos" : "neg"}">${dif >= 0 ? "+" : "−"}${Math.abs(dif).toFixed(1)} pts</span><span class="s">${Math.abs(dif) < 2 ? "prácticamente igual al azar" : dif > 0 ? "por encima del azar" : "por debajo del azar"}</span></div>
+  </div>`;
+  h += `<div class="tbl-wrap" style="margin-top:12px"><table><thead><tr><th>Fila</th><th class="r">Casos</th><th class="r">Se cumplió</th><th class="r">Azar</th></tr></thead><tbody>` +
+    [...porFila.entries()].sort((a, b) => b[1].casos - a[1].casos).map(([key, f]) => `<tr><td>${key}</td><td class="r num-c">${f.casos.toLocaleString("es-MX")}</td><td class="r num-c">${pc(f.cumple, f.casos)}</td><td class="r num-c">${pc(f.azar, f.casos)}</td></tr>`).join("") +
+    `</tbody></table></div><p class="hint">Usa la interpretación provisional: participantes = ganadores del sorteo anterior; resultado = reducción de la suma de los ganadores siguientes. Cuando el doctor confirme la forma exacta, se ajusta.</p>`;
+  out.innerHTML = h;
+}
+$("mf-h-calc").addEventListener("click", mfHistorico);
 
 /* ---------- Guía: índice y ejemplos ---------- */
 $("view-guia").addEventListener("click", (e) => {
