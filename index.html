@@ -338,6 +338,40 @@ tr.top td { font-weight: 700; }
 .combo .seen + .reg-btn { margin-left: 6px; }
 .reg-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
 
+/* Insights */
+.ins-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ins-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px; }
+.ins-grid .panel { gap: 10px; }
+.ins-grid .panel > p { margin: -4px 0 4px; }
+.ins-row { display: grid; grid-template-columns: minmax(92px, 34%) minmax(0, 1fr) 58px; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 8px; cursor: pointer; font-size: 13px; outline-offset: 1px; }
+.ins-row:hover, .ins-row.tip-on { background: var(--sunk); }
+.ins-lab { color: var(--ink); overflow-wrap: anywhere; line-height: 1.25; }
+.ins-row.top .ins-lab { font-weight: 700; color: var(--head); }
+.ins-track { position: relative; height: 12px; border-radius: 6px; background: var(--sunk); }
+.ins-row:hover .ins-track, .ins-row.tip-on .ins-track { background: var(--card-solid); }
+.ins-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: .75; }
+.ins-row.top .ins-fill { background: linear-gradient(90deg, var(--mark), var(--mark-2)); opacity: 1; }
+.ins-exp { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--head); }
+.ins-val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.ins-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; font-size: 12.5px; color: var(--muted); }
+.ins-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ins-legend i { display: inline-block; }
+.lg-real { width: 22px; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.lg-azar { width: 2px; height: 16px; border-radius: 1px; background: var(--head); }
+.ins-concl { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; max-width: 90ch; }
+.ins-concl li::marker { color: var(--mark); }
+.ins-concl .final { list-style: none; margin-left: -20px; margin-top: 4px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--ink); }
+.ins-pos { overflow-x: auto; }
+.ins-pos table { border-collapse: separate; border-spacing: 3px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.ins-pos th { color: var(--muted); font-weight: 600; padding: 2px 4px; }
+.ins-pos td { min-width: 30px; text-align: center; padding: 6px 2px; border-radius: 6px; cursor: pointer; color: var(--ink); }
+.ins-pos td.tip-on { box-shadow: 0 0 0 2px var(--head); }
+.jp-list { display: flex; flex-direction: column; gap: 6px; }
+.jp-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 10px; border-radius: 12px; background: var(--sunk); font-size: 13px; }
+.jp-item .balls { flex-wrap: nowrap; }
+.jp-item b { color: var(--head); }
+.jp-item .bolsa { margin-left: auto; font-weight: 700; color: var(--mark); font-variant-numeric: tabular-nums; }
+
 /* Tooltips de las gráficas */
 .tip { position: fixed; left: 0; top: 0; z-index: 40; width: max-content; max-width: min(340px, calc(100vw - 20px)); background: var(--card-solid); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 16px 40px rgba(20, 15, 40, .22); padding: 11px 13px; font-size: 12.5px; line-height: 1.4; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; }
 .tip.on { opacity: 1; transform: none; }
@@ -359,6 +393,11 @@ tr.top td { font-weight: 700; }
 .bar-tip:hover, .bar-tip.tip-on { filter: brightness(1.12); box-shadow: 0 0 0 2px var(--accent-soft); }
 
 /* Proyecto Morfeo: calculadora según la ley */
+.mc-part { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+@media (max-width: 520px) { .mc-part { grid-template-columns: minmax(0, 1fr); } }
+#mc-lista .balls, #mc-lista .mc-suma, .seen[data-tip] { cursor: pointer; }
+#mc-lista .balls.tip-on .ball { box-shadow: 0 0 0 2px var(--accent-soft); }
+.tip .tt .balls { flex-wrap: wrap; gap: 4px; }
 .mc-controles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; align-items: end; }
 .mc-modo { grid-template-columns: 1fr 1fr; }
 .mc-suma { display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 99px; font-size: 11px; font-weight: 800; background: var(--accent-soft); color: var(--accent); flex: none; }
@@ -605,6 +644,10 @@ a.link:hover { text-decoration: underline; }
       <a href="#morfeo" data-view="morfeo" title="Proyecto Morfeo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/><path d="M16 3.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/></svg>
         <span>Proyecto Morfeo</span>
+      </a>
+      <a href="#insights" data-view="insights" title="Insights">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/><circle cx="19.5" cy="6.5" r="2.5"/></svg>
+        <span>Insights</span>
       </a>
       <a href="#guia" data-view="guia" title="Guía de uso">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><path d="M12 17.6h.01"/></svg>
@@ -1089,7 +1132,11 @@ a.link:hover { text-decoration: underline; }
 
       <section class="panel gsec" id="mf-calc">
         <h2>Combinaciones según la ley</h2>
-        <p>Usa los participantes y la fuente del verificador de arriba, y arma todas las combinaciones cuya suma reduce a lo que predice la ley.</p>
+        <p>Escribe los participantes (o toma los del último sorteo) y arma todas las combinaciones cuya suma reduce a lo que predice la ley. Pasa el cursor o toca una combinación para ver su probabilidad y si ya salió.</p>
+        <div class="mc-part">
+          <div class="field"><label for="mc-part">Números participantes</label><input id="mc-part" type="text" placeholder="Ej. 1, 7, 10, 19, 27, 28 (es el mismo campo que el verificador)"></div>
+          <button class="btn primary" type="button" id="mc-ultimo">Usar el último sorteo</button>
+        </div>
         <div class="mc-controles">
           <div class="field"><label for="mc-sorteo">Sorteo</label>
             <select id="mc-sorteo"><option value="chispazo">Chispazo · 5 de 1 a 28</option><option value="melate">Melate · 6 de 1 a 56</option><option value="revancha">Revancha · 6 de 1 a 56</option><option value="revanchita">Revanchita · 6 de 1 a 56</option></select>
@@ -1213,6 +1260,45 @@ a.link:hover { text-decoration: underline; }
       </section>
 
       <p class="note">Los sorteos de Lotería Nacional son aleatorios: cada combinación tiene la misma probabilidad. Esta sección documenta un método de numerología para estudiarlo; no es una garantía de premio.</p>
+    </section>
+
+    <!-- ========== Insights ========== -->
+    <section class="view" id="view-insights" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Insights</h1>
+          <p>Qué es lo más común que sale en cada sorteo, y si se aleja de lo que se espera por puro azar.</p>
+        </div>
+        <span class="chip-date" id="i-updated"></span>
+      </div>
+      <div class="ins-bar">
+        <div class="game-tabs" id="i-games" aria-label="Sorteo">
+          <button type="button" data-game="melate" aria-pressed="true">Melate</button>
+          <button type="button" data-game="revancha" aria-pressed="false">Revancha</button>
+          <button type="button" data-game="revanchita" aria-pressed="false">Revanchita</button>
+          <button type="button" data-game="chispazo" aria-pressed="false">Chispazo</button>
+          <button type="button" data-game="tris" aria-pressed="false">Tris</button>
+        </div>
+        <div class="jump">
+          <label for="i-period" class="lbl-sm">Periodo</label>
+          <select id="i-period" style="width:auto">
+            <option value="n100">Últimos 100 sorteos</option>
+            <option value="y1">Último año</option>
+            <option value="y5">Últimos 5 años</option>
+            <option value="all" selected>Todo (rango actual)</option>
+          </select>
+        </div>
+      </div>
+      <p class="msg" id="i-empty" hidden>No hay datos del histórico cargados todavía.</p>
+      <div class="cards4" id="i-cards"></div>
+      <section class="panel" aria-label="Conclusiones">
+        <h2 class="sec-title" style="margin:0">Conclusiones <span class="aux" id="i-concl-aux"></span></h2>
+        <ul class="ins-concl" id="i-concl"></ul>
+      </section>
+      <div class="ins-legend" aria-hidden="true"><span><i class="lg-real"></i>Lo que salió</span><span><i class="lg-azar"></i>Lo esperado por azar</span><span class="hint">Pasa el cursor o toca una barra para ver el detalle.</span></div>
+      <div class="ins-grid" id="i-charts"></div>
+      <section class="panel" aria-label="Premio mayor" id="i-premio"></section>
+      <p class="note" id="i-note"></p>
     </section>
 
     <!-- ========== Guía ========== -->
@@ -1959,7 +2045,7 @@ function renderList() {
     if (hit) {
       seenCount++;
       const last = hit.e[0];
-      seen = `<span class="seen" title="${hit.e.map((r) => GAMES[hit.g].name + " #" + r[0] + " (" + fdate(r[1]) + ")").join(", ")}">Salió · ${GAMES[hit.g].name} #${last[0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>`;
+      seen = `<span class="seen" data-tip="combo:${hit.g}:${values.join("-")}" tabindex="0">Salió · ${GAMES[hit.g].name} #${last[0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>`;
     }
     const reg = sg.length ? `<button type="button" class="reg-btn" data-reg="${values.join(",")}" title="Registrar esta jugada en Participaciones" aria-label="Registrar esta jugada">＋</button>` : "";
     h += `<div class="combo"><span class="idx">#${(i + 1n).toLocaleString("es-MX")}</span><span class="balls">${balls}</span>${seen}${reg}</div>`;
@@ -2595,7 +2681,7 @@ $("h-next").addEventListener("click", () => { H.page++; renderHistTable(); });
 /* ---------- Menú ---------- */
 let histReady = false;
 function route() {
-  const vistas = { "#historico": "historico", "#reglas": "reglas", "#participaciones": "participaciones", "#morfeo": "morfeo", "#guia": "guia" };
+  const vistas = { "#historico": "historico", "#reglas": "reglas", "#participaciones": "participaciones", "#morfeo": "morfeo", "#insights": "insights", "#guia": "guia" };
   const v = vistas[location.hash] || "calculadora";
   $("view-calculadora").hidden = v !== "calculadora";
   $("view-historico").hidden = v !== "historico";
@@ -2603,6 +2689,8 @@ function route() {
   $("view-guia").hidden = v !== "guia";
   $("view-participaciones").hidden = v !== "participaciones";
   $("view-morfeo").hidden = v !== "morfeo";
+  $("view-insights").hidden = v !== "insights";
+  if (v === "insights") renderInsights();
   if (v === "participaciones") ptEntrar();
   if (v === "reglas") renderRules();
   document.querySelectorAll(".nav a").forEach((a) => (a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
@@ -3157,7 +3245,8 @@ function mcRecalcular() {
   MC.g = g; MC.R = R; MC.esp = null; MC.start = 0;
   document.querySelectorAll("#mc-modo button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mc === MC.modo)));
   const fin = (html) => { out.innerHTML = html; $("mc-lista-wrap").hidden = true; };
-  if (part.length < 3) return fin(`<p class="hint">Escribe al menos 3 números participantes en el verificador de arriba (o usa «Usar el último sorteo»).</p>`);
+  if ($("mc-part") !== document.activeElement) $("mc-part").value = $("mf-part").value;
+  if (part.length < 3) return fin(`<p class="hint">Escribe al menos 3 números participantes arriba, o pulsa «Usar el último sorteo» para tomar los ganadores del último ${GAMES[g].name}.</p>`);
   const a = mfAplicar(part, fuente);
   if (!a.esperado) return fin(`<p class="msg">${a.motivo}</p>`);
   const fuera = part.filter((v) => v < 1 || v > max);
@@ -3166,6 +3255,7 @@ function mcRecalcular() {
   else vals = part.filter((v) => v >= 1 && v <= max).sort((x, y) => x - y);
   if (vals.length < R) return fin(`<p class="msg">Con solo ${vals.length} participante${vals.length === 1 ? "" : "s"} dentro del rango 1–${max} no se pueden armar combinaciones de ${R}. Cambia a «Todo el sorteo» o agrega números.</p>`);
   MC.part = new Set(part);
+  MC.ley = a.esperado;
   MC.esp = mfEspacio(vals, R, a.esperado);
   const posibles = Number(Engine.C(vals.length, R));
   const fila = fuente === "texto" ? `UNO con ${a.con} (texto)` : `${MF_NOMBRE[a.r]} con ${a.con}`;
@@ -3190,8 +3280,9 @@ function mcLista() {
     const s = combo.reduce((x, y) => x + y, 0);
     const balls = combo.map((v) => `<span class="ball${MC.modo === "completo" && MC.part.has(v) ? " fx" : ""}">${String(v).padStart(2, "0")}</span>`).join("");
     const hit = seenFor(combo, games);
-    const seen = hit ? `<span class="seen" title="${hit.e.map((r) => GAMES[hit.g].name + " #" + r[0] + " (" + fechaHora(hit.g, r) + ")").join(", ")}">Salió · #${hit.e[0][0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>` : "";
-    h += `<div class="combo"><span class="idx">#${(i + 1).toLocaleString("es-MX")}</span><span class="balls">${balls}</span><span class="mc-suma" title="Suma ${s} → reduce a ${raiz(s)}">${raiz(s)}</span>${seen}<button type="button" class="reg-btn" data-mcreg="${combo.join(",")}" title="Registrar esta jugada en Participaciones" aria-label="Registrar esta jugada">＋</button></div>`;
+    const tipId = `combo:${g}:${combo.join("-")}`;
+    const seen = hit ? `<span class="seen" data-tip="${tipId}" tabindex="0">Salió · #${hit.e[0][0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>` : "";
+    h += `<div class="combo"><span class="idx">#${(i + 1).toLocaleString("es-MX")}</span><span class="balls" data-tip="${tipId}" tabindex="0" aria-label="Detalles de la combinación">${balls}</span><span class="mc-suma" data-tip="${tipId}" tabindex="0" aria-label="Suma ${s}, reduce a ${raiz(s)}">${raiz(s)}</span>${seen}<button type="button" class="reg-btn" data-mcreg="${combo.join(",")}" title="Registrar esta jugada en Participaciones" aria-label="Registrar esta jugada">＋</button></div>`;
     i++;
   }
   $("mc-lista").innerHTML = h;
@@ -3216,6 +3307,17 @@ $("mc-lista").addEventListener("click", (e) => {
   const datos = { sorteo: g === "chispazo" ? "chispazo" : "melate", numeros, extra: g };
   location.hash = "#participaciones";
   setTimeout(() => { if (!$("pt-nueva").hidden) mcAbrirRegistro(datos); else PT.pendiente = datos; }, 60);
+});
+// Campo propio de participantes: es el mismo dato que el del verificador
+$("mc-part").addEventListener("input", () => {
+  $("mf-part").value = $("mc-part").value;
+  $("mf-part").dispatchEvent(new Event("input"));
+  mcRecalcular();
+});
+$("mc-ultimo").addEventListener("click", () => {
+  $("mf-sorteo").value = $("mc-sorteo").value;
+  $("mf-ultimo").click();
+  mcRecalcular();
 });
 mcRecalcular(); // estado inicial: pide los participantes
 function mcAbrirRegistro(d) {
@@ -3245,10 +3347,283 @@ $("mc-exportar").addEventListener("click", async () => {
   MC.exportando = false; $("mc-exportar").disabled = false;
 });
 
+/* ---------- Insights: patrones del histórico contra lo esperado por azar ---------- */
+const I = { game: "melate", period: "all", charts: {}, rows: [], pos: null };
+// Primer número del rango actual: antes de que apareciera, el sorteo tenía menos números
+const ERA_DESDE = { melate: 52, revancha: 52, chispazo: 26 };
+const RANGO_TXT = { melate: "1–56", revancha: "1–56", revanchita: "1–56", chispazo: "1–28", tris: "0–9" };
+function cnum(n, r) { if (r < 0 || r > n) return 0; let c = 1; for (let i = 1; i <= r; i++) c = (c * (n - r + i)) / i; return c; }
+function insEra(g) {
+  const G = GAMES[g], rows = rowsOf(g).filter((r) => numsOf(r, g).length === G.k);
+  const u = ERA_DESDE[g];
+  if (!u || !rows.length) return { rows, desde: rows.length ? rows[rows.length - 1][1] : null };
+  let idx = rows.length - 1;
+  for (let i = rows.length - 1; i >= 0; i--) if (numsOf(rows[i], g).some((v) => v >= u)) { idx = i; break; }
+  return { rows: rows.slice(0, idx + 1), desde: rows[idx][1] };
+}
+function insPeriodo(rows, p) {
+  if (!rows.length || p === "all") return rows;
+  if (p === "n100") return rows.slice(0, 100);
+  const cut = rows[0][1] - (p === "y1" ? 1 : 5) * 10000;
+  return rows.filter((r) => r[1] > cut);
+}
+const TRI_PAT = { "11111": "Todos distintos", "2111": "Un par", "221": "Dos pares", "311": "Tercia", "32": "Tercia y par", "41": "Póker (4 iguales)", "5": "Quintilla (5 iguales)" };
+function triPatron(d) {
+  const c = new Array(10).fill(0); for (const v of d) c[v]++;
+  return c.filter(Boolean).sort((a, b) => b - a).join("");
+}
+const INS_ESP = {};
+function insEsperado(g) {
+  if (INS_ESP[g]) return INS_ESP[g];
+  const G = GAMES[g], k = G.k, e = {};
+  if (G.digits) {
+    const pat = {}, par = new Array(k + 1).fill(0), bajo = new Array(k + 1).fill(0), suma = new Array(9 * k + 1).fill(0), d = new Array(k);
+    const T = Math.pow(10, k);
+    for (let x = 0; x < T; x++) {
+      let t = x, pares = 0, bajos = 0, s = 0;
+      for (let i = k - 1; i >= 0; i--) { d[i] = t % 10; t = (t - d[i]) / 10; if (d[i] % 2 === 0) pares++; if (d[i] <= 4) bajos++; s += d[i]; }
+      const p = triPatron(d); pat[p] = (pat[p] || 0) + 1; par[pares]++; bajo[bajos]++; suma[s]++;
+    }
+    e.pat = Object.fromEntries(Object.entries(pat).map(([a, b]) => [a, b / T]));
+    e.par = par.map((x) => x / T); e.bajo = bajo.map((x) => x / T); e.suma = suma.map((x) => x / T);
+    e.repite = Array.from({ length: k + 1 }, (_, j) => cnum(k, j) * Math.pow(0.1, j) * Math.pow(0.9, k - j));
+  } else {
+    const N = UNIVERSO[g], tot = cnum(N, k), E = Math.floor(N / 2);
+    e.par = Array.from({ length: k + 1 }, (_, j) => (cnum(E, j) * cnum(N - E, k - j)) / tot);
+    e.bajo = e.par.slice(); // la mitad de los números son bajos, igual que la mitad son pares
+    e.consec = Array.from({ length: k }, (_, j) => (cnum(k - 1, j) * cnum(N - k + 1, k - j)) / tot);
+    e.repite = Array.from({ length: k + 1 }, (_, j) => (cnum(k, j) * cnum(N - k, k - j)) / tot);
+    const f = Array.from({ length: k + 1 }, () => new Float64Array(N * k + 1)); f[0][0] = 1;
+    for (let v = 1; v <= N; v++) for (let c = k; c >= 1; c--) for (let s = N * k; s >= v; s--) f[c][s] += f[c - 1][s - v];
+    e.suma = Array.from(f[k], (x) => x / tot);
+  }
+  return (INS_ESP[g] = e);
+}
+// Agrupa una lista de probabilidades: los índices ≥ desde se juntan en una sola categoría
+const juntar = (arr, desde) => [...arr.slice(0, desde), arr.slice(desde).reduce((a, b) => a + b, 0)];
+function insGrafica(id, titulo, desc, labs, ps, rows, valor) {
+  const cats = labs.map((lab, i) => ({ lab, p: ps[i], obs: 0, last: null }));
+  let n = 0;
+  rows.forEach((r, i) => {
+    const j = valor(r, i); if (j == null || !cats[j]) return;
+    n++; cats[j].obs++; if (cats[j].last == null) cats[j].last = i;
+  });
+  return (I.charts[id] = { id, titulo, desc, cats, n });
+}
+function insBandas(ps) {
+  let cum = 0, lo = 0, hi = ps.length - 1;
+  for (let s = 0; s < ps.length; s++) { const a = cum; cum += ps[s]; if (a < 0.03 && cum >= 0.03) lo = s; if (a < 0.97 && cum >= 0.97) hi = s; }
+  const w = Math.max(1, Math.ceil((hi - lo + 1) / 7)), bandas = [];
+  let min = ps.findIndex((x) => x > 0);
+  if (lo > min) bandas.push([min, lo - 1, `Menos de ${lo}`]);
+  for (let a = lo; a <= hi; a += w) bandas.push([a, Math.min(a + w - 1, hi), `${a} a ${Math.min(a + w - 1, hi)}`]);
+  const max = ps.length - 1 - [...ps].reverse().findIndex((x) => x > 0);
+  if (hi < max) bandas.push([hi + 1, max, `Más de ${hi}`]);
+  const de = new Int16Array(ps.length).fill(-1);
+  bandas.forEach(([a, b], i) => { for (let s = a; s <= b; s++) de[s] = i; });
+  return { labs: bandas.map((b) => b[2]), ps: bandas.map(([a, b]) => ps.slice(a, b + 1).reduce((x, y) => x + y, 0)), de };
+}
+function insCalcular() {
+  const g = I.game, G = GAMES[g], k = G.k, e = insEsperado(g);
+  const era = insEra(g), todas = era.rows, rows = insPeriodo(todas, I.period);
+  const off = 0; // rows es un prefijo de todas: el sorteo anterior de rows[i] es todas[i + 1]
+  I.charts = {}; I.rows = rows; I.era = era;
+  const suma = (r) => numsOf(r, g).reduce((a, b) => a + b, 0);
+  const lista = [];
+  if (G.digits) {
+    const claves = Object.keys(TRI_PAT).filter((c) => e.pat[c]);
+    lista.push(insGrafica("pat", "Patrón de dígitos", "Cuántos dígitos se repiten dentro del mismo resultado.", claves.map((c) => TRI_PAT[c]), claves.map((c) => e.pat[c]), rows, (r) => claves.indexOf(triPatron(numsOf(r, g)))));
+  }
+  lista.push(insGrafica("par", "Pares y nones", G.digits ? "Cuántos de los 5 dígitos son pares (0, 2, 4, 6, 8)." : "Cuántos de los números ganadores son pares.",
+    e.par.map((_, j) => `${j} par${j === 1 ? "" : "es"} · ${k - j} non${k - j === 1 ? "" : "es"}`), e.par, rows, (r) => numsOf(r, g).filter((v) => v % 2 === 0).length));
+  const mitad = G.digits ? 4 : Math.floor(UNIVERSO[g] / 2);
+  lista.push(insGrafica("bajo", "Bajos y altos", `Bajos: ${G.digits ? "0" : "1"} a ${mitad}; altos: ${mitad + 1} a ${G.digits ? 9 : UNIVERSO[g]}.`,
+    e.bajo.map((_, j) => `${j} bajo${j === 1 ? "" : "s"} · ${k - j} alto${k - j === 1 ? "" : "s"}`), e.bajo, rows, (r) => numsOf(r, g).filter((v) => v <= mitad).length));
+  const b = insBandas(e.suma);
+  I.bandas = b;
+  lista.push(insGrafica("suma", "Suma de los números", `Suma de ${G.digits ? "los 5 dígitos" : `los ${k} números`}, agrupada en rangos.`, b.labs, b.ps, rows, (r) => b.de[suma(r)]));
+  const pr = new Array(10).fill(0); e.suma.forEach((p, s) => { pr[raiz(s)] += p; });
+  lista.push(insGrafica("raiz", "Reducción de la suma", "La suma reducida a un dígito (la que usa Proyecto Morfeo).", pr.map((_, d) => d === 0 ? "0 (todo en ceros)" : `Reduce a ${d}`), pr, rows, (r) => raiz(suma(r))));
+  if (!G.digits) {
+    lista.push(insGrafica("consec", "Números seguidos", "Pares de números consecutivos en el resultado, como 14 y 15.", ["Ninguno seguido", "1 par seguido", "2 pares seguidos", "3 o más"], juntar(e.consec, 3), rows, (r) => {
+      const s = [...numsOf(r, g)].sort((x, y) => x - y); let c = 0; for (let i = 1; i < s.length; i++) if (s[i] - s[i - 1] === 1) c++; return Math.min(c, 3);
+    }));
+    lista.push(insGrafica("repite", "Repetidos del sorteo anterior", "Cuántos números ya habían salido en el concurso anterior.", ["Ninguno", "1 número", "2 números", "3 o más"], juntar(e.repite, 3), rows, (r, i) => {
+      const ant = todas[i + off + 1]; if (!ant) return null; const a = new Set(numsOf(ant, g)); return Math.min(numsOf(r, g).filter((v) => a.has(v)).length, 3);
+    }));
+  } else {
+    lista.push(insGrafica("repite", "Repetidos del sorteo anterior", "Posiciones con el mismo dígito que el concurso anterior.", ["Ninguna posición", "1 posición", "2 o más"], juntar(e.repite, 2), rows, (r, i) => {
+      const ant = todas[i + off + 1]; if (!ant) return null; const a = numsOf(ant, g); return Math.min(numsOf(r, g).filter((v, p) => v === a[p]).length, 2);
+    }));
+    const pos = Array.from({ length: k }, () => ({ c: new Array(10).fill(0), last: new Array(10).fill(null) }));
+    rows.forEach((r, i) => numsOf(r, g).forEach((v, p) => { pos[p].c[v]++; if (pos[p].last[v] == null) pos[p].last[v] = i; }));
+    I.pos = pos;
+  }
+  return lista;
+}
+function insChartHtml(ch) {
+  const cats = ch.cats.map((c, i) => ({ ...c, i })).filter((c) => c.p > 0 || c.obs > 0);
+  const n = Math.max(1, ch.n), max = Math.max(1e-9, ...cats.map((c) => Math.max(c.obs / n, c.p)));
+  const top = cats.reduce((a, c) => (c.obs > a.obs ? c : a), cats[0]);
+  const filas = cats.map((c) => `<div class="ins-row${c === top ? " top" : ""}" data-tip="ins:${ch.id}:${c.i}" tabindex="0" role="img" aria-label="${c.lab}: ${pctTxt(c.obs / n)} de los sorteos; por azar ${pctTxt(c.p)}">
+      <span class="ins-lab">${c.lab}</span>
+      <span class="ins-track"><span class="ins-fill" style="width:${((c.obs / n) / max) * 100}%"></span><span class="ins-exp" style="left:${(c.p / max) * 100}%"></span></span>
+      <span class="ins-val">${pctTxt(c.obs / n)}</span></div>`).join("");
+  return `<section class="panel" aria-label="${ch.titulo}"><h2 class="sec-title" style="margin:0">${ch.titulo} <span class="aux">${ch.n.toLocaleString("es-MX")} sorteos</span></h2><p class="hint">${ch.desc}</p>${filas}</section>`;
+}
+function insPosHtml() {
+  const g = I.game, n = Math.max(1, I.rows.length), esp = n / 10;
+  const celdas = I.pos.map((p, i) => `<tr><th scope="row">${i + 1}.ª</th>${p.c.map((c, d) => {
+    const dif = Math.max(-1, Math.min(1, (c - esp) / Math.max(1, esp * 0.25)));
+    const color = dif >= 0 ? "var(--mark)" : "var(--accent)";
+    return `<td data-tip="ins:pos:${i}-${d}" tabindex="0" style="background:color-mix(in srgb, ${color} ${Math.round(8 + Math.abs(dif) * 42)}%, var(--card-solid))" aria-label="Posición ${i + 1}, dígito ${d}: ${c} veces">${pctTxt(c / n).replace(" %", "")}</td>`;
+  }).join("")}</tr>`).join("");
+  return `<section class="panel" aria-label="Dígito por posición"><h2 class="sec-title" style="margin:0">Dígito por posición <span class="aux">% de los sorteos</span></h2>
+    <p class="hint">Cada celda es qué tanto salió ese dígito en esa posición. Por azar, cada una ronda el 10 %. Naranja: más de lo esperado; azul: menos.</p>
+    <div class="ins-pos"><table><thead><tr><th></th>${[...Array(10).keys()].map((d) => `<th scope="col">${d}</th>`).join("")}</tr></thead><tbody>${celdas}</tbody></table></div></section>`;
+}
+// Premio mayor: cuando la bolsa del siguiente sorteo baja mucho, alguien ganó la bolsa en el anterior
+function insPremios(g, rows) {
+  const ganados = [];
+  for (let i = 1; i < rows.length; i++) {
+    const viejo = bolsaOf(rows[i], g), nuevo = bolsaOf(rows[i - 1], g);
+    if (viejo && nuevo && nuevo < viejo * 0.75) ganados.push({ r: rows[i], i, bolsa: viejo });
+  }
+  return ganados;
+}
+function insZ(c, n) { const v = n * c.p * (1 - c.p); return v > 0 ? (c.obs - n * c.p) / Math.sqrt(v) : 0; }
+function renderInsights() {
+  const g = I.game, G = GAMES[g];
+  document.querySelectorAll("#i-games button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.game === g)));
+  $("i-period").value = I.period;
+  $("i-updated").textContent = loadHist().updated ? `Datos al ${loadHist().updated}` : "";
+  const hay = rowsOf(g).length > 0;
+  $("i-empty").hidden = hay;
+  for (const id of ["i-cards", "i-charts", "i-premio"]) $(id).hidden = !hay;
+  if (!hay) { $("i-concl").innerHTML = ""; return; }
+  const lista = insCalcular(), rows = I.rows, n = rows.length;
+  const T = TOTAL_JUEGO[g];
+  const pc = (ch, f) => { const c = ch.cats.filter(f); return { obs: c.reduce((a, x) => a + x.obs, 0) / Math.max(1, ch.n), p: c.reduce((a, x) => a + x.p, 0) }; };
+  const topDe = (ch) => ch.cats.reduce((a, c) => (c.obs > a.obs ? c : a), ch.cats[0]);
+  const C = I.charts;
+  // Tarjetas
+  const tPar = topDe(G.digits ? C.pat : C.par), tSuma = topDe(C.suma);
+  const ganados = G.bolsa ? insPremios(g, rows) : [];
+  $("i-cards").innerHTML = `
+    <div class="hcard hl"><span class="k">Sorteos analizados</span><span class="v">${n.toLocaleString("es-MX")}</span><span class="s">del ${fdate(rows[n - 1][1])} al ${fdate(rows[0][1])}</span></div>
+    <div class="hcard"><span class="k">Lo más común</span><span class="v" style="font-size:20px">${tPar.lab}</span><span class="s">${pctTxt(tPar.obs / Math.max(1, (G.digits ? C.pat : C.par).n))} de los sorteos · por azar ${pctTxt(tPar.p)}</span></div>
+    <div class="hcard"><span class="k">Suma más común</span><span class="v" style="font-size:20px">${tSuma.lab}</span><span class="s">${pctTxt(tSuma.obs / Math.max(1, C.suma.n))} de los sorteos · por azar ${pctTxt(tSuma.p)}</span></div>
+    ${G.bolsa
+      ? `<div class="hcard"><span class="k">Premio mayor</span><span class="v">${ganados.length ? `${ganados.length} ${ganados.length === 1 ? "vez" : "veces"}` : "No cayó"}</span><span class="s">${ganados.length ? `una vez cada ${Math.round(n / ganados.length).toLocaleString("es-MX")} sorteos, en promedio` : "en este periodo"}</span></div>`
+      : `<div class="hcard"><span class="k">Atinarle a la combinación exacta</span><span class="v" style="font-size:20px">1 en ${T.toLocaleString("es-MX")}</span><span class="s">en cada sorteo, la misma para todas</span></div>`}`;
+  // Gráficas
+  $("i-charts").innerHTML = lista.map(insChartHtml).join("") + (G.digits && I.pos ? insPosHtml() : "");
+  // Premio mayor
+  if (G.bolsa) {
+    const prom = ganados.reduce((a, x) => a + x.bolsa, 0) / Math.max(1, ganados.length);
+    const maxB = ganados.reduce((a, x) => (x.bolsa > a.bolsa ? x : a), ganados[0] || { bolsa: 0 });
+    let racha = 0; for (let j = 1; j < ganados.length; j++) racha = Math.max(racha, ganados[j].i - ganados[j - 1].i);
+    const desde = ganados.length ? ganados[0].i : null;
+    $("i-premio").innerHTML = `<h2 class="sec-title" style="margin:0">Premio mayor de ${G.name} <span class="aux">deducido de la bolsa acumulada</span></h2>
+      <div class="rep-stats">
+        <div class="stat"><span class="k">Veces que cayó</span><span class="v">${ganados.length.toLocaleString("es-MX")}</span><span class="s">en ${n.toLocaleString("es-MX")} sorteos</span></div>
+        <div class="stat"><span class="k">Bolsa promedio al caer</span><span class="v">${ganados.length ? pesosCorto(prom) : "—"}</span><span class="s">${ganados.length ? `la más alta: ${pesosCorto(maxB.bolsa)} (#${maxB.r[0]})` : ""}</span></div>
+        <div class="stat"><span class="k">Más sorteos seguidos sin ganador</span><span class="v">${ganados.length > 1 ? racha.toLocaleString("es-MX") : "—"}</span><span class="s">entre dos premios mayores</span></div>
+        <div class="stat"><span class="k">Desde el último</span><span class="v">${desde != null ? `${desde.toLocaleString("es-MX")} sorteo${desde === 1 ? "" : "s"}` : "—"}</span><span class="s">${desde != null ? `cayó en el #${ganados[0].r[0]}, ${fdate(ganados[0].r[1])}` : ""}</span></div>
+      </div>
+      ${ganados.length ? `<span class="lbl-sm">Últimas veces que cayó</span><div class="jp-list">${ganados.slice(0, 8).map((x) => `<div class="jp-item"><b>#${x.r[0]}</b><span class="hint">${fdate(x.r[1])}</span><span class="balls" data-tip="combo:${g}:${numsOf(x.r, g).join("-")}" tabindex="0">${ballsHtml(x.r, g)}</span><span class="bolsa">${pesosCorto(x.bolsa)}</span></div>`).join("")}</div>` : ""}
+      <p class="hint">El histórico oficial no dice cuántos ganadores hubo en cada categoría. El premio mayor se deduce cuando la bolsa del siguiente sorteo vuelve a empezar; si la bolsa se repartió entre varios, cuenta una sola vez.</p>`;
+  } else {
+    $("i-premio").innerHTML = `<h2 class="sec-title" style="margin:0">Premios</h2><p class="hint">${G.name} no acumula bolsa, y el histórico oficial no dice cuántos ganadores hubo en cada categoría, así que no se puede saber cuándo cayó cada premio. Las probabilidades de cada categoría de premio están en la <a class="link" href="#calculadora">Calculadora</a>.</p>`;
+  }
+  // Conclusiones
+  const li = [];
+  const frase = (x) => `salió en el <b>${pctTxt(x.obs)}</b> de los sorteos (por azar, ${pctTxt(x.p)})`;
+  if (G.digits) {
+    const t = topDe(C.pat), dist = C.pat.cats.find((c) => c.lab === "Todos distintos");
+    li.push(`Lo más común en Tris es <b>${t.lab.toLowerCase()}</b>: ${frase({ obs: t.obs / C.pat.n, p: t.p })}. Los cinco dígitos distintos salen en el ${pctTxt(dist.obs / C.pat.n)}.`);
+  }
+  const tp = topDe(C.par), tb = topDe(C.bajo);
+  li.push(`En pares y nones lo más común es <b>${tp.lab.replace(" · ", " y ")}</b>: ${frase({ obs: tp.obs / C.par.n, p: tp.p })}.`);
+  li.push(`En bajos y altos lo más común es <b>${tb.lab.replace(" · ", " y ")}</b>: ${frase({ obs: tb.obs / C.bajo.n, p: tb.p })}.`);
+  { // rango central de la suma (≈ dos tercios de las combinaciones)
+    let cum = 0, a = 0, z = 0; const ps = insEsperado(g).suma;
+    for (let s = 0; s < ps.length; s++) { const prev = cum; cum += ps[s]; if (prev < 0.165 && cum >= 0.165) a = s; if (prev < 0.835 && cum >= 0.835) z = s; }
+    let obs = 0, p = 0; for (let s = a; s <= z; s++) p += ps[s];
+    for (const r of rows) { const s = numsOf(r, g).reduce((x, y) => x + y, 0); if (s >= a && s <= z) obs++; }
+    li.push(`La suma de los números cayó entre <b>${a} y ${z}</b> en el <b>${pctTxt(obs / n)}</b> de los sorteos (por azar, ${pctTxt(p)}). Las sumas muy bajas o muy altas casi no salen porque hay muy pocas combinaciones que las den.`);
+  }
+  const tr = topDe(C.raiz);
+  li.push(`La suma reduce con más frecuencia a <b>${tr.lab.replace("Reduce a ", "")}</b> (${pctTxt(tr.obs / C.raiz.n)}); por azar, cada reducción ronda el 11 %.`);
+  if (!G.digits) {
+    const s = pc(C.consec, (c) => c.lab !== "Ninguno seguido");
+    li.push(`En el <b>${pctTxt(s.obs)}</b> de los sorteos salieron al menos dos números seguidos (por azar, ${pctTxt(s.p)}). Que salgan seguidos es normal, no raro.`);
+  }
+  const rp = pc(C.repite, (c) => !/^Ninguna?/.test(c.lab));
+  li.push(G.digits
+    ? `En el <b>${pctTxt(rp.obs)}</b> de los sorteos al menos una posición repitió el dígito del concurso anterior (por azar, ${pctTxt(rp.p)}).`
+    : `En el <b>${pctTxt(rp.obs)}</b> de los sorteos se repitió al menos un número del concurso anterior (por azar, ${pctTxt(rp.p)}).`);
+  if (G.bolsa && ganados.length) li.push(`El premio mayor cayó <b>${ganados.length} ${ganados.length === 1 ? "vez" : "veces"}</b>, una vez cada ${Math.round(n / ganados.length).toLocaleString("es-MX")} sorteos en promedio, con una bolsa promedio de ${pesosCorto(insPremios(g, rows).reduce((a, x) => a + x.bolsa, 0) / ganados.length)}.`);
+  // ¿Algo se sale de lo normal?
+  const raras = [];
+  for (const ch of lista) for (const c of ch.cats) if (ch.n * c.p >= 5 && Math.abs(insZ(c, ch.n)) > 3) raras.push(`${c.lab} (${ch.titulo.toLowerCase()})`);
+  const totalCats = lista.reduce((a, ch) => a + ch.cats.filter((c) => ch.n * c.p >= 5).length, 0);
+  li.push(raras.length
+    ? `De ${totalCats} patrones revisados, ${raras.length === 1 ? "uno se aleja" : `${raras.length} se alejan`} de lo esperado más de lo que suele pasar por azar: ${raras.join(", ")}. Con tantos patrones, que alguno se aleje puede ser casualidad.`
+    : `De ${totalCats} patrones revisados, <b>ninguno</b> se aleja de lo esperado más de lo que suele pasar por azar.`);
+  li.push(`<li class="final"><b>En resumen:</b> los resultados se parecen a lo que daría un sorteo al puro azar. Lo «más común» es lo que tiene más combinaciones posibles, no algo que el sorteo prefiera: cualquier combinación tiene <b>1 en ${T.toLocaleString("es-MX")}</b> de salir${G.digits ? " en el orden exacto" : ""}. ${G.bolsa ? "Jugar «lo más común» no sube tu probabilidad. Lo que sí puedes cuidar es no compartir la bolsa: mucha gente juega fechas (números del 1 al 31), secuencias y el último resultado." : "Jugar «lo más común» no sube tu probabilidad; solo cambia qué combinaciones juegas."}</li>`);
+  $("i-concl").innerHTML = li.map((x) => (x.startsWith("<li") ? x : `<li>${x}</li>`)).join("");
+  $("i-concl-aux").textContent = `${G.name} · ${$("i-period").selectedOptions[0].textContent.toLowerCase()}`;
+  // Nota
+  const notas = [];
+  if (ERA_DESDE[g]) notas.push(`Solo cuenta los sorteos desde el ${fdate(I.era.desde)}, cuando el rango pasó a ${RANGO_TXT[g]}; antes había menos números y las cuentas no serían comparables.`);
+  if (G.digits) notas.push("Solo cuenta los sorteos de 5 dígitos.");
+  if (G.adic) notas.push("No incluye el número adicional.");
+  notas.push("Lo esperado por azar se calcula contando todas las combinaciones posibles de cada tipo. Los resultados pasados no cambian la probabilidad de los próximos sorteos.");
+  $("i-note").textContent = notas.join(" ");
+}
+function tipInsight(x) {
+  const g = I.game, G = GAMES[g], [id, j] = x.split(":");
+  const ultima = (i) => (i == null ? "nunca" : `#${I.rows[i][0]} · ${fechaHora(g, I.rows[i])}<br><span class="tip-sub">${i === 0 ? "en el último sorteo" : `hace ${i.toLocaleString("es-MX")} sorteo${i === 1 ? "" : "s"}`}</span>`);
+  if (id === "pos") {
+    const [p, d] = j.split("-").map(Number), c = I.pos[p].c[d], n = I.rows.length, esp = n / 10, dif = c - esp;
+    return `<div class="tt"><span class="ball">${d}</span>Dígito ${d} en la ${p + 1}.ª posición</div><dl>
+      <dt>Veces que salió</dt><dd><b>${c.toLocaleString("es-MX")}</b> de ${n.toLocaleString("es-MX")}<br><span class="tip-sub">${pctTxt(c / Math.max(1, n))}</span></dd>
+      <dt>Esperado por azar</dt><dd>${esp.toLocaleString("es-MX", { maximumFractionDigits: 1 })} veces (10 %)</dd>
+      <dt>Diferencia</dt><dd class="${dif >= 0 ? "up" : "down"}">${dif >= 0 ? "+" : "−"}${Math.abs(dif).toLocaleString("es-MX", { maximumFractionDigits: 1 })}</dd>
+      <dt>¿Es raro?</dt><dd>${insVeredicto(insZ({ obs: c, p: 0.1 }, n))}</dd>
+      <dt>Última vez</dt><dd>${ultima(I.pos[p].last[d])}</dd>
+      <dt>En el siguiente sorteo</dt><dd><b>10 %</b></dd></dl>
+      <p class="tip-nota">Cada posición es un sorteo aparte del 0 al 9; ningún dígito tiene más probabilidad.</p>`;
+  }
+  const ch = I.charts[id], c = ch && ch.cats[Number(j)];
+  if (!c) return "";
+  const n = Math.max(1, ch.n), esp = c.p * ch.n, dif = c.obs - esp, T = TOTAL_JUEGO[g];
+  return `<div class="tt">${c.lab}</div><dl>
+    <dt>Gráfica</dt><dd>${ch.titulo}</dd>
+    <dt>Salió</dt><dd><b>${c.obs.toLocaleString("es-MX")}</b> de ${ch.n.toLocaleString("es-MX")} sorteos<br><span class="tip-sub">${pctTxt(c.obs / n)}</span></dd>
+    <dt>Esperado por azar</dt><dd>${esp.toLocaleString("es-MX", { maximumFractionDigits: 1 })} veces<br><span class="tip-sub">${pctTxt(c.p)}</span></dd>
+    <dt>Diferencia</dt><dd class="${dif >= 0 ? "up" : "down"}">${dif >= 0 ? "+" : "−"}${Math.abs(dif).toLocaleString("es-MX", { maximumFractionDigits: 1 })}</dd>
+    <dt>¿Es raro?</dt><dd>${esp >= 5 ? insVeredicto(insZ(c, ch.n)) : "muy pocos casos para saberlo"}</dd>
+    ${id !== "repite" ? `<dt>Combinaciones así</dt><dd>${Math.round(c.p * T).toLocaleString("es-MX")} de ${T.toLocaleString("es-MX")}</dd>` : ""}
+    <dt>Última vez</dt><dd>${ultima(c.last)}</dd>
+    <dt>En el siguiente sorteo</dt><dd><b>${pctTxt(c.p)}</b></dd></dl>
+    <p class="tip-nota">La probabilidad del siguiente sorteo es la de azar: lo que salió antes no la cambia.</p>`;
+}
+function insVeredicto(z) {
+  const a = Math.abs(z);
+  return a < 2 ? "no, es normal por azar" : a < 3 ? "un poco, pero pasa por azar" : "sí, poco común por azar";
+}
+$("i-games").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-game]"); if (!b) return;
+  I.game = b.dataset.game; tipHide(); renderInsights();
+});
+$("i-period").addEventListener("change", () => { I.period = $("i-period").value; tipHide(); renderInsights(); });
+
 /* ---------- Tooltips de las gráficas ---------- */
 let FREQ = null, PREMIOS_TIP = [];
 const UNIVERSO = { melate: 56, revancha: 56, revanchita: 56, chispazo: 28, tris: 10 };
-const pctTxt = (x) => (x * 100).toLocaleString("es-MX", { maximumFractionDigits: x < 0.01 ? 2 : 1 }) + " %";
+const pctTxt = (x) => (x * 100).toLocaleString("es-MX", x > 0 && x < 0.0001 ? { maximumSignificantDigits: 2 } : { maximumFractionDigits: x < 0.01 ? 2 : 1 }) + " %";
 function ultimaVez(g, v) {
   const rows = rowsOf(g);
   for (let i = 0; i < rows.length; i++) if (numsOf(rows[i], g).includes(v)) return { row: rows[i], hace: i };
@@ -3291,13 +3666,35 @@ function tipPrem(i) {
     </dl>
     <p class="tip-nota">Es un promedio a largo plazo; cada boleto tiene la misma probabilidad.</p>`;
 }
-const TIP_FN = { freq: (x) => tipFreq(Number(x)), prem: (x) => tipPrem(Number(x)) };
+/* Tooltip de una combinación concreta: probabilidad y veces que ha salido */
+const TOTAL_JUEGO = { melate: 32468436, revancha: 32468436, revanchita: 32468436, chispazo: 98280, tris: 100000 };
+function tipCombo(x) {
+  const [g, txt] = x.split(":"), G = GAMES[g];
+  if (!G) return "";
+  const nums = txt.split("-").map(Number), s = nums.reduce((a, b) => a + b, 0), T = TOTAL_JUEGO[g];
+  const e = repeatsOf(g).map.get(comboKey(nums, g)) || [];
+  const n = repeatsOf(g).n;
+  const pUna = 1 - Math.pow(1 - 1 / T, n), esperadas = n / T;
+  const enLey = !$("view-morfeo").hidden && MC.esp && MC.ley ? MC.ley.includes(raiz(s)) : null;
+  const lista = e.slice(0, 5).map((r) => `#${r[0]} · ${fechaHora(g, r)}`).join("<br>") + (e.length > 5 ? `<br>y ${e.length - 5} más` : "");
+  return `<div class="tt"><span class="balls">${nums.map((v) => `<span class="ball">${hpad(v, g)}</span>`).join("")}</span></div>
+    <dl>
+      <dt>Sorteo</dt><dd>${G.name}</dd>
+      <dt>Suma</dt><dd>${s} → reduce a <b>${raiz(s)}</b></dd>
+      ${enLey != null ? `<dt>Ley de Morfeo</dt><dd>${enLey ? "cumple" : "no cumple"}</dd>` : ""}
+      <dt>Ha salido</dt><dd><b>${e.length ? `${e.length} vez${e.length === 1 ? "" : "es"}` : "nunca"}</b>${e.length ? `<br><span class="tip-sub">${lista}</span>` : ""}</dd>
+      <dt>En el siguiente sorteo</dt><dd><b>1 en ${T.toLocaleString("es-MX")}</b><br><span class="tip-sub">${pctTxt(1 / T)}, igual que cualquier otra</span></dd>
+      <dt>En ${n.toLocaleString("es-MX")} sorteos</dt><dd>${pctTxt(pUna)} de salir al menos una vez<br><span class="tip-sub">por azar se esperaban ${esperadas.toLocaleString("es-MX", { maximumFractionDigits: 2 })} veces</span></dd>
+    </dl>
+    <p class="tip-nota">Que una combinación ya haya salido no la hace más ni menos probable en el siguiente sorteo.</p>`;
+}
+const TIP_FN = { freq: (x) => tipFreq(Number(x)), prem: (x) => tipPrem(Number(x)), combo: (x) => tipCombo(x), ins: (x) => tipInsight(x) };
 const tipEl = document.createElement("div");
 tipEl.className = "tip"; tipEl.setAttribute("role", "tooltip"); tipEl.id = "tooltip";
 document.body.appendChild(tipEl);
 let tipTarget = null;
 function tipShow(t) {
-  const [tipo, val] = t.dataset.tip.split(":");
+  const d = t.dataset.tip, c = d.indexOf(":"), tipo = d.slice(0, c), val = d.slice(c + 1);
   const html = TIP_FN[tipo] ? TIP_FN[tipo](val) : "";
   if (!html) return tipHide();
   if (tipTarget && tipTarget !== t) tipTarget.classList.remove("tip-on");
@@ -3428,6 +3825,7 @@ function refreshAfterData() {
   sideCard();
   if (!$("view-historico").hidden) { if (!histReady) { syncHistInputs(); histReady = true; } renderHist(); }
   if (!$("view-reglas").hidden) renderRules();
+  if (!$("view-insights").hidden) renderInsights();
   $("fab-filtros").hidden = $("view-historico").hidden || !rowsOf(H.game).length;
   if (space) renderList();
 }
