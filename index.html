@@ -358,6 +358,18 @@ tr.top td { font-weight: 700; }
 .bar-tip { cursor: pointer; height: 10px; border-radius: 5px; }
 .bar-tip:hover, .bar-tip.tip-on { filter: brightness(1.12); box-shadow: 0 0 0 2px var(--accent-soft); }
 
+/* Proyecto Morfeo: calculadora según la ley */
+.mc-controles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; align-items: end; }
+.mc-modo { grid-template-columns: 1fr 1fr; }
+.mc-suma { display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 99px; font-size: 11px; font-weight: 800; background: var(--accent-soft); color: var(--accent); flex: none; }
+#mc-lista { grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); }
+#mc-lista .combo { gap: 8px; }
+#mc-lista .balls { flex-wrap: nowrap; }
+#mc-lista .reg-btn { margin-left: auto; }
+@media (max-width: 420px) { #mc-lista .balls { flex-wrap: wrap; } }
+#mc-lista .combo .seen { margin-left: 2px; }
+@media (max-width: 760px) { .mc-controles { grid-template-columns: minmax(0, 1fr); } }
+
 /* Proyecto Morfeo: verificador */
 .mf-ver-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr); gap: 12px; align-items: end; }
 .mf-cargar { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1075,6 +1087,44 @@ a.link:hover { text-decoration: underline; }
         <p class="hint">Interpretación provisional, pendiente de confirmar con el doctor: «con 3/6/9» es la reducción de la <b>suma</b> de los participantes de las familias 3, 6 y 9, y «los ganadores sumarán» es la reducción de la <b>suma de todos</b> los ganadores.</p>
       </section>
 
+      <section class="panel gsec" id="mf-calc">
+        <h2>Combinaciones según la ley</h2>
+        <p>Usa los participantes y la fuente del verificador de arriba, y arma todas las combinaciones cuya suma reduce a lo que predice la ley.</p>
+        <div class="mc-controles">
+          <div class="field"><label for="mc-sorteo">Sorteo</label>
+            <select id="mc-sorteo"><option value="chispazo">Chispazo · 5 de 1 a 28</option><option value="melate">Melate · 6 de 1 a 56</option><option value="revancha">Revancha · 6 de 1 a 56</option><option value="revanchita">Revanchita · 6 de 1 a 56</option></select>
+          </div>
+          <div class="field"><span class="lbl-sm">Armar las combinaciones con</span>
+            <div class="modes mc-modo" id="mc-modo" style="margin:0">
+              <button type="button" data-mc="completo" aria-pressed="true">Todo el sorteo</button>
+              <button type="button" data-mc="part" aria-pressed="false">Solo mis participantes</button>
+            </div>
+          </div>
+        </div>
+        <div id="mc-resumen"></div>
+        <div id="mc-lista-wrap" hidden>
+          <div class="list-head">
+            <div class="pager">
+              <button class="btn" type="button" id="mc-prev" aria-label="Página anterior">‹</button>
+              <span class="info" id="mc-info"></span>
+              <button class="btn" type="button" id="mc-next" aria-label="Página siguiente">›</button>
+            </div>
+            <div class="jump">
+              <label for="mc-ir" class="lbl-sm">Ir a la #</label>
+              <input id="mc-ir" type="text" inputmode="numeric" placeholder="1">
+              <button class="btn" type="button" id="mc-ir-btn">Ir</button>
+            </div>
+          </div>
+          <div class="combo-list" id="mc-lista"></div>
+          <div class="export">
+            <div class="field"><label for="mc-desde">Exportar desde la #</label><input id="mc-desde" type="text" inputmode="numeric" value="1"></div>
+            <div class="field"><label for="mc-max">Cuántas como máximo</label><input id="mc-max" type="number" inputmode="numeric" value="100000" min="1" max="2000000" step="1000"></div>
+            <button class="btn primary" type="button" id="mc-exportar">Exportar CSV</button>
+            <span class="status" id="mc-status"></span>
+          </div>
+        </div>
+      </section>
+
       <section class="panel gsec" id="mf-historico">
         <h2>¿Qué tan seguido se ha cumplido?</h2>
         <p>Prueba la ley con todo el histórico: en cada sorteo toma como participantes los ganadores del sorteo anterior y revisa si el siguiente cumplió. Compara el resultado con lo que se esperaría por puro azar.</p>
@@ -1191,14 +1241,14 @@ a.link:hover { text-decoration: underline; }
         <ol class="steps">
           <li><b>Elige el sorteo</b> en <span class="ui">Calculadora → Sorteo</span>: Melate, Chispazo, Tris o Personalizado.</li>
           <li><b>Ajusta las reglas</b> si quieres: rango de números, cuántas posiciones, si importa el orden o si se repiten.</li>
-          <li><b>Marca tus números</b> en el boleto: los que deben aparecer o los únicos que quieres usar.</li>
+          <li><b>Marca tus números</b> en el boleto: los que quieres que aparezcan (basta con uno) o los únicos que quieres usar.</li>
           <li><b>Lee el resultado</b>: cuántas combinaciones hay, la probabilidad y el costo.</li>
           <li><b>Revisa la lista</b> de combinaciones o expórtala a Excel (CSV).</li>
         </ol>
         <div class="ex-grid">
           <div class="ex">
-            <span class="ex-q">¿Cuántas jugadas de Melate traen el 7 y el 21?</span>
-            <span class="ex-a">316,251 de 32,468,436 posibles.</span>
+            <span class="ex-q">¿Cuántas jugadas de Melate traen el 7, el 21 o ambos?</span>
+            <span class="ex-a">6,641,271 de 32,468,436 posibles.</span>
             <button class="btn sm primary" type="button" data-ejemplo="melate721">Probar</button>
           </div>
           <div class="ex">
@@ -1256,8 +1306,8 @@ a.link:hover { text-decoration: underline; }
         <div class="two">
           <div class="mode-card">
             <span class="mode-t"><i class="dot req"></i> Debe contener <span class="pill">naranja</span></span>
-            <p>Números que <b>tienen que aparecer</b> en cada combinación. Puedes marcar como máximo tantos como posiciones haya.</p>
-            <p class="hint">Ejemplo: en Melate marca 7 y 21 → solo cuenta jugadas que traigan ambos.</p>
+            <p>Cada combinación trae <b>al menos uno</b> de estos números. Puedes marcar todos los que quieras.</p>
+            <p class="hint">Ejemplo: en Melate marca 7 y 21 → cuenta las jugadas que traen el 7, el 21 o los dos (6,641,271).</p>
           </div>
           <div class="mode-card">
             <span class="mode-t"><i class="dot pool"></i> Solo usar estos <span class="pill blue">azul</span></span>
@@ -1463,16 +1513,37 @@ const Engine = (() => {
     if (posMode) for (const v of pos) if (v != null && !isFixedVal[v]) { isFixedVal[v] = 1; KF++; }
     const freeAfter = new Int32Array(R + 1);
     for (let p = R - 1; p >= 0; p--) freeAfter[p] = freeAfter[p + 1] + (posMode ? (pos[p] == null ? 1 : 0) : 1);
+    // «Al menos uno»: la combinación debe traer al menos uno de estos valores
+    const anyList = posMode ? [] : [...new Set(cfg.alMenosUno || [])];
+    const isAny = new Uint8Array(N);
+    for (const v of anyList) isAny[v] = 1;
+    const M = anyList.length;
+    const anyFrom = new Int32Array(N + 2); // cuántos marcados hay con índice ≥ i
+    for (let i = N - 1; i >= 0; i--) anyFrom[i] = anyFrom[i + 1] + isAny[i];
 
     const used = new Uint16Array(N);
     const seq = new Array(R);
-    let p = 0, lo = 0, miss = K, freeUsed = 0;
+    let p = 0, lo = 0, miss = K, freeUsed = 0, hits = 0;
     const loStack = [];
 
-    function reset() { used.fill(0); p = 0; lo = 0; miss = K; freeUsed = 0; loStack.length = 0; }
+    function reset() { used.fill(0); p = 0; lo = 0; miss = K; freeUsed = 0; hits = 0; loStack.length = 0; }
+
+    // Completaciones que traen al menos uno de los marcados = todas − las que no usan ninguno
+    function countAlMenosUno(L) {
+      let todas, sinMarcados;
+      if (L === 0) { todas = 1n; sinMarcados = 1n; }
+      else if (!ordered) {
+        const A = N - lo, a = anyFrom[lo];
+        if (rep) { todas = C(A + L - 1, L); sinMarcados = C(A - a + L - 1, L); }
+        else { todas = C(A, L); sinMarcados = C(A - a, L); }
+      } else if (rep) { todas = powB(N, L); sinMarcados = powB(N - M, L); }
+      else { todas = P(N - p, L); sinMarcados = P(N - p - (M - hits), L); }
+      return hits > 0 ? todas : todas - sinMarcados;
+    }
 
     function count() {
       const L = R - p;
+      if (M > 0) return countAlMenosUno(L);
       if (!ordered) {
         for (const r of reqList) if (!used[r] && r < lo) return 0n;
         const A = N - lo, m = miss;
@@ -1505,6 +1576,7 @@ const Engine = (() => {
       if (posMode && pos[p] == null) freeUsed++;
       used[v]++;
       if (isReq[v] && used[v] === 1) miss--;
+      if (isAny[v] && used[v] === 1) hits++;
       seq[p] = v;
       lo = rep ? v : v + 1;
       p++;
@@ -1512,6 +1584,7 @@ const Engine = (() => {
     function pop(v) {
       p--;
       if (isReq[v] && used[v] === 1) miss++;
+      if (isAny[v] && used[v] === 1) hits--;
       used[v]--;
       if (posMode && pos[p] == null) freeUsed--;
       lo = loStack.pop();
@@ -1560,7 +1633,7 @@ const Engine = (() => {
       yield* walk(start);
     }
 
-    return { total, unrank, iterate, K, KF, posMode };
+    return { total, unrank, iterate, K, KF, M, posMode };
   }
 
   return { C, P, fact, powB, surj, createSpace };
@@ -1606,8 +1679,7 @@ function normalize() {
   S.pos.length = S.R; for (let i = 0; i < S.R; i++) if (S.pos[i] === undefined) S.pos[i] = null;
   S.pool = [...new Set(S.pool.filter((v) => v >= S.min && v <= S.max))];
   const inUni = (v) => v >= S.min && v <= S.max && (!S.pool.length || S.pool.includes(v));
-  S.req = S.req.filter(inUni);
-  if (S.req.length > S.R) S.req = S.req.slice(0, S.R);
+  S.req = S.req.filter(inUni); // «Debe contener» ya no tiene límite: basta con que salga al menos uno
   S.pos = S.pos.map((v) => (v != null && !inUni(v) ? null : v));
   if (!S.ordered) S.posMode = false;
   if (S.ordered || S.rep) S.adic = false;
@@ -1639,13 +1711,11 @@ function renderPicker() {
   if (showGrid) {
     if (n > MAX_N || n < 1) { grid.innerHTML = ""; }
     else {
-      const full = S.req.length >= S.R;
       let h = "";
       for (let v = S.min; v <= S.max; v++) {
         const isReq = !S.posMode && S.req.includes(v), inPool = S.pool.includes(v);
         const pressed = S.mode === "req" ? isReq : inPool;
-        const dis = S.mode === "req" && !isReq && full;
-        h += `<button type="button" class="num${isReq ? " req" : inPool ? " pool" : ""}" data-v="${v}" aria-pressed="${pressed}" ${dis ? "disabled" : ""}>${pad(v)}</button>`;
+        h += `<button type="button" class="num${isReq ? " req" : inPool ? " pool" : ""}" data-v="${v}" aria-pressed="${pressed}">${pad(v)}</button>`;
       }
       grid.innerHTML = h;
     }
@@ -1667,7 +1737,9 @@ function renderPicker() {
   }
   const kFixed = S.posMode ? S.pos.filter((v) => v != null).length : S.req.length;
   $("legend").innerHTML =
-    `<span><i class="dot req"></i>${S.posMode ? "Fijos" : "Debe contener"}: <b>${kFixed}</b> de ${S.R}</span>` +
+    (S.posMode
+      ? `<span><i class="dot req"></i>Fijos: <b>${kFixed}</b> de ${S.R}</span>`
+      : `<span><i class="dot req"></i>Debe contener (al menos uno): <b>${kFixed}</b> marcado${kFixed === 1 ? "" : "s"}</span>`) +
     `<span><i class="dot pool"></i>Solo usar: <b>${S.pool.length ? S.pool.length + " de " + n : "todos (" + n + ")"}</b></span>` +
     (S.pool.length ? `<button class="btn sm" type="button" id="b-allpool">Usar todos</button>` : "");
   let hint;
@@ -1676,8 +1748,8 @@ function renderPicker() {
     : "Toca los números con los que quieres jugar, o escribe un rango como 1-10.";
   else if (S.posMode) hint = "Deja en “Cualquiera” las posiciones libres.";
   else hint = S.req.length
-    ? (S.rep ? "Cada número marcado aparece al menos una vez." : "Toca un número para quitarlo.")
-    : "Toca números para exigir que aparezcan en cada combinación.";
+    ? "Cada combinación trae al menos uno de los marcados. Toca un número para quitarlo."
+    : "Marca los números que te interesan: verás todas las combinaciones que traen al menos uno.";
   $("pick-hint").textContent = hint;
 }
 
@@ -1700,7 +1772,8 @@ function cfgFor(withFixed, usePool = true) {
   const ix = new Map(V.map((v, i) => [v, i]));
   return {
     N: V.length, R: S.R, ordered: S.ordered, rep: S.rep, posMode: S.posMode, V,
-    req: withFixed ? S.req.filter((v) => ix.has(v)).map((v) => ix.get(v)) : [],
+    req: [],
+    alMenosUno: withFixed && !S.posMode ? S.req.filter((v) => ix.has(v)).map((v) => ix.get(v)) : [],
     pos: withFixed ? S.pos.map((v) => (v == null || !ix.has(v) ? null : ix.get(v))) : Array(S.R).fill(null),
   };
 }
@@ -1727,6 +1800,15 @@ function money(count) {
 
 function formulaText(sp) {
   const n = curV.length, R = S.R;
+  if (sp.M > 0) {
+    // Al menos uno de los marcados = todas − las que no traen ninguno
+    const { C, P, powB } = Engine, m = sp.M, sin = n - m;
+    const [fT, fS, vT, vS] = !S.ordered && !S.rep ? [`C(${n}, ${R})`, `C(${sin}, ${R})`, C(n, R), C(sin, R)]
+      : !S.ordered ? [`C(${n + R - 1}, ${R})`, `C(${sin + R - 1}, ${R})`, C(n + R - 1, R), C(sin + R - 1, R)]
+      : !S.rep ? [`P(${n}, ${R})`, `P(${sin}, ${R})`, P(n, R), P(sin, R)]
+      : [`${n}^${R}`, `${sin}^${R}`, powB(n, R), powB(sin, R)];
+    return `<span class="lbl">Fórmula (todas − sin tus números):</span> ${fT} − ${fS} = ${fmt(vT)} − ${fmt(vS)} = ${fmt(sp.total)}`;
+  }
   if (!S.ordered && !S.rep) { const K = sp.K; return `<span class="lbl">Fórmula:</span> C(N−K, R−K) = C(${n - K}, ${R - K}) = ${fmt(sp.total)}`; }
   if (!S.ordered && S.rep) { const K = sp.K, f = R - K; return `<span class="lbl">Fórmula (multiconjuntos):</span> C(N+R−K−1, R−K) = C(${n + f - 1}, ${f}) = ${fmt(sp.total)}`; }
   if (S.posMode) {
@@ -1758,14 +1840,15 @@ function update() {
   const M = space.total, T = fullSpace.total;
   const fixedCount = S.posMode ? S.pos.filter((v) => v != null).length : S.req.length;
   const P = S.pool.length;
-  $("hero-kicker").textContent = P && fixedCount ? `Combinaciones con tus ${P} números que incluyen los fijos`
+  const marcados = S.posMode ? "los fijos" : P ? "al menos uno de los marcados" : "al menos uno de tus números";
+  $("hero-kicker").textContent = P && fixedCount ? `Combinaciones con tus ${P} números que traen ${marcados}`
     : P ? `Combinaciones usando solo tus ${P} números`
-    : fixedCount ? "Combinaciones que contienen tus números" : "Combinaciones posibles (sin números fijos)";
+    : fixedCount ? `Combinaciones que traen ${marcados}` : "Combinaciones posibles (sin números marcados)";
   $("big").textContent = fmt(M);
   let sub = P || fixedCount
     ? `de <b>${fmt(T)}</b> combinaciones del sorteo · ${pct(M, T)} del total`
     : `Marca números del boleto para ver cuántas jugadas los incluyen, o elige con cuáles jugar en “Solo usar estos”.`;
-  if (P && fixedCount) sub += `<br>Con tus ${P} números hay <b>${fmt(poolSpace.total)}</b> en total; ${fmt(M)} incluyen los fijos.`;
+  if (P && fixedCount) sub += `<br>Con tus ${P} números hay <b>${fmt(poolSpace.total)}</b> en total; ${fmt(M)} traen ${marcados}.`;
   $("hero-sub").innerHTML = sub;
   $("formula").innerHTML = (P ? `<span class="lbl">N = tus ${P} números · </span>` : "") + formulaText(space);
   $("s-p1").textContent = oneIn(T, 1n);
@@ -1988,7 +2071,7 @@ $("grid").addEventListener("click", (e) => {
   } else {
     const i = S.req.indexOf(v);
     if (i >= 0) S.req.splice(i, 1);
-    else if (S.req.length < S.R) { S.req.push(v); if (S.pool.length && !S.pool.includes(v)) S.pool.push(v); }
+    else { S.req.push(v); if (S.pool.length && !S.pool.includes(v)) S.pool.push(v); }
   }
   showPickMsg(""); S.pageStart = 0n; renderPicker(); update();
 });
@@ -2013,10 +2096,8 @@ function markTyped() {
     out.forEach((v) => { if (!S.pool.includes(v)) S.pool.push(v); });
   } else {
     const fresh = out.filter((v) => !S.req.includes(v));
-    const add = fresh.slice(0, Math.max(0, S.R - S.req.length));
-    S.req.push(...add);
-    if (S.pool.length) add.forEach((v) => { if (!S.pool.includes(v)) S.pool.push(v); });
-    if (fresh.length > add.length) msg += `Solo caben ${S.R} números fijos; no se marcaron: ${fresh.slice(add.length).join(", ")}. `;
+    S.req.push(...fresh);
+    if (S.pool.length) fresh.forEach((v) => { if (!S.pool.includes(v)) S.pool.push(v); });
   }
   if (bad.length) msg += `Fuera del rango ${S.min}–${S.max}: ${bad.slice(0, 12).join(", ")}${bad.length > 12 ? "…" : ""}. `;
   if (tooBig) msg += "Un rango era demasiado grande y se ignoró.";
@@ -2868,7 +2949,7 @@ $("list").addEventListener("click", (e) => {
 });
 // Si la persona tenía que escribir la clave primero, abre el formulario con la jugada al terminar de cargar
 const _ptRenderOrig = ptRender;
-ptRender = function () { _ptRenderOrig(); if (PT.pendiente && !$("pt-nueva").hidden) { const x = PT.pendiente; PT.pendiente = null; ptAbrirForm(x); } };
+ptRender = function () { _ptRenderOrig(); if (PT.pendiente && !$("pt-nueva").hidden) { const x = PT.pendiente; PT.pendiente = null; x.extra ? mcAbrirRegistro(x) : ptAbrirForm(x); } };
 setInterval(() => { if (PT.estado === "ok" && !$("view-participaciones").hidden && !PT.premioEdit && !PT.borrando) ptRender(); }, 60000);
 
 /* ---------- Proyecto Morfeo: verificador de la ley ---------- */
@@ -3020,6 +3101,149 @@ function mfHistorico() {
   out.innerHTML = h;
 }
 $("mf-h-calc").addEventListener("click", mfHistorico);
+
+// MFESPACIO START
+/* Combinaciones sin orden ni repetición de `valores` (ascendentes) cuya suma reduce a una de `raices`.
+   La raíz 9 equivale al residuo 0 de dividir entre 9. Tabla f[i][L][r]: formas de elegir L valores
+   desde la posición i con suma ≡ r (mód 9). Cuenta, ubica y recorre sin generar todas las combinaciones. */
+function mfEspacio(valores, R, raices) {
+  const n = valores.length, res = [...new Set(raices.map((d) => d % 9))];
+  const f = Array.from({ length: n + 1 }, () => Array.from({ length: R + 1 }, () => new Float64Array(9)));
+  f[n][0][0] = 1;
+  for (let i = n - 1; i >= 0; i--) {
+    const v = valores[i] % 9;
+    for (let L = 0; L <= R; L++) for (let r = 0; r < 9; r++) f[i][L][r] = f[i + 1][L][r] + (L > 0 ? f[i + 1][L - 1][(r - v + 9) % 9] : 0);
+  }
+  const comp = (i, L, s) => { let c = 0; for (const t of res) c += f[i][L][(t - s + 9) % 9]; return c; };
+  const total = R <= n ? comp(0, R, 0) : 0;
+  function unrank(k) {
+    if (k < 0 || k >= total) return null;
+    const out = []; let i = 0, s = 0;
+    for (let L = R; L > 0; L--) {
+      let ok = false;
+      for (let j = i; j <= n - L; j++) {
+        const s2 = (s + valores[j]) % 9, c = comp(j + 1, L - 1, s2);
+        if (k < c) { out.push(valores[j]); s = s2; i = j + 1; ok = true; break; }
+        k -= c;
+      }
+      if (!ok) return null;
+    }
+    return out;
+  }
+  function* walk(i, L, s, pref, skip) {
+    if (L === 0) { yield pref.slice(); return; }
+    for (let j = i; j <= n - L; j++) {
+      const s2 = (s + valores[j]) % 9, c = comp(j + 1, L - 1, s2);
+      if (c === 0) continue;
+      if (skip >= c) { skip -= c; continue; }
+      pref.push(valores[j]);
+      yield* walk(j + 1, L - 1, s2, pref, skip);
+      skip = 0;
+      pref.pop();
+    }
+  }
+  const iterate = (start = 0) => (start >= 0 && start < total ? walk(0, R, 0, [], start) : [][Symbol.iterator]());
+  return { total, unrank, iterate };
+}
+// MFESPACIO END
+
+/* Calculadora «Combinaciones según la ley» */
+const MC = { modo: "completo", start: 0, size: 50, esp: null, g: "chispazo", R: 5, part: new Set(), exportando: false };
+const MC_SPEC = { chispazo: { R: 5, max: 28 }, melate: { R: 6, max: 56 }, revancha: { R: 6, max: 56 }, revanchita: { R: 6, max: 56 } };
+function mcRecalcular() {
+  const g = $("mc-sorteo").value, { R, max } = MC_SPEC[g];
+  const part = mfLeer("mf-part"), fuente = $("mf-fuente").value;
+  const out = $("mc-resumen");
+  MC.g = g; MC.R = R; MC.esp = null; MC.start = 0;
+  document.querySelectorAll("#mc-modo button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mc === MC.modo)));
+  const fin = (html) => { out.innerHTML = html; $("mc-lista-wrap").hidden = true; };
+  if (part.length < 3) return fin(`<p class="hint">Escribe al menos 3 números participantes en el verificador de arriba (o usa «Usar el último sorteo»).</p>`);
+  const a = mfAplicar(part, fuente);
+  if (!a.esperado) return fin(`<p class="msg">${a.motivo}</p>`);
+  const fuera = part.filter((v) => v < 1 || v > max);
+  let vals = [];
+  if (MC.modo === "completo") for (let v = 1; v <= max; v++) vals.push(v);
+  else vals = part.filter((v) => v >= 1 && v <= max).sort((x, y) => x - y);
+  if (vals.length < R) return fin(`<p class="msg">Con solo ${vals.length} participante${vals.length === 1 ? "" : "s"} dentro del rango 1–${max} no se pueden armar combinaciones de ${R}. Cambia a «Todo el sorteo» o agrega números.</p>`);
+  MC.part = new Set(part);
+  MC.esp = mfEspacio(vals, R, a.esperado);
+  const posibles = Number(Engine.C(vals.length, R));
+  const fila = fuente === "texto" ? `UNO con ${a.con} (texto)` : `${MF_NOMBRE[a.r]} con ${a.con}`;
+  out.innerHTML = `<div class="hero-res">
+      <span class="kicker">Combinaciones de ${GAMES[g].name} que cumplen la ley · ${MC.modo === "completo" ? "todo el sorteo" : `solo tus ${vals.length} participantes`}</span>
+      <span class="bignum">${MC.esp.total.toLocaleString("es-MX")}</span>
+      <span class="sub">de <b>${posibles.toLocaleString("es-MX")}</b> posibles · ${pctTxt(MC.esp.total / Math.max(1, posibles))}</span>
+    </div>
+    <div class="mf-set"><span class="hint">Fila ${fila}: la suma debe reducir a</span>${mfChips(a.esperado)}</div>
+    ${fuera.length ? `<p class="hint">Se ignoraron por estar fuera del rango 1–${max}: ${fuera.join(", ")}.</p>` : ""}
+    ${MC.esp.total ? "" : `<p class="msg">Ninguna combinación de tus participantes cumple la ley. Prueba con «Todo el sorteo» o agrega más participantes.</p>`}`;
+  $("mc-lista-wrap").hidden = !MC.esp.total;
+  $("mc-desde").value = "1"; $("mc-status").textContent = "";
+  mcLista();
+}
+function mcLista() {
+  const e = MC.esp; if (!e || !e.total) return;
+  const g = MC.g, games = [g];
+  let h = "", i = MC.start;
+  for (const combo of e.iterate(MC.start)) {
+    if (i >= MC.start + MC.size) break;
+    const s = combo.reduce((x, y) => x + y, 0);
+    const balls = combo.map((v) => `<span class="ball${MC.modo === "completo" && MC.part.has(v) ? " fx" : ""}">${String(v).padStart(2, "0")}</span>`).join("");
+    const hit = seenFor(combo, games);
+    const seen = hit ? `<span class="seen" title="${hit.e.map((r) => GAMES[hit.g].name + " #" + r[0] + " (" + fechaHora(hit.g, r) + ")").join(", ")}">Salió · #${hit.e[0][0]}${hit.e.length > 1 ? " ×" + hit.e.length : ""}</span>` : "";
+    h += `<div class="combo"><span class="idx">#${(i + 1).toLocaleString("es-MX")}</span><span class="balls">${balls}</span><span class="mc-suma" title="Suma ${s} → reduce a ${raiz(s)}">${raiz(s)}</span>${seen}<button type="button" class="reg-btn" data-mcreg="${combo.join(",")}" title="Registrar esta jugada en Participaciones" aria-label="Registrar esta jugada">＋</button></div>`;
+    i++;
+  }
+  $("mc-lista").innerHTML = h;
+  const fin = Math.min(MC.start + MC.size, e.total);
+  $("mc-info").textContent = `#${(MC.start + 1).toLocaleString("es-MX")}–${fin.toLocaleString("es-MX")} de ${e.total.toLocaleString("es-MX")}`;
+  $("mc-prev").disabled = MC.start === 0;
+  $("mc-next").disabled = fin >= e.total;
+}
+function mcIr(n) { const e = MC.esp; if (!e) return; MC.start = Math.max(0, Math.min(Math.floor(n / MC.size) * MC.size, Math.floor((e.total - 1) / MC.size) * MC.size)); mcLista(); }
+$("mc-sorteo").addEventListener("change", mcRecalcular);
+$("mc-modo").addEventListener("click", (e) => { const b = e.target.closest("button[data-mc]"); if (!b) return; MC.modo = b.dataset.mc; mcRecalcular(); });
+$("mc-prev").addEventListener("click", () => mcIr(MC.start - MC.size));
+$("mc-next").addEventListener("click", () => mcIr(MC.start + MC.size));
+$("mc-ir-btn").addEventListener("click", () => { const n = parseInt($("mc-ir").value.replace(/\D/g, ""), 10); if (n >= 1) { mcIr(n - 1); $("mc-desde").value = n; } });
+$("mc-ir").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("mc-ir-btn").click(); } });
+// Se recalcula cada vez que el verificador cambia (participantes, fuente, último sorteo, ejemplos)
+new MutationObserver(() => { clearTimeout(MC.t); MC.t = setTimeout(mcRecalcular, 60); }).observe($("mf-salida"), { childList: true });
+$("mf-fuente").addEventListener("change", mcRecalcular);
+$("mc-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-mcreg]"); if (!b) return;
+  const numeros = b.dataset.mcreg.split(",").map(Number), g = MC.g;
+  const datos = { sorteo: g === "chispazo" ? "chispazo" : "melate", numeros, extra: g };
+  location.hash = "#participaciones";
+  setTimeout(() => { if (!$("pt-nueva").hidden) mcAbrirRegistro(datos); else PT.pendiente = datos; }, 60);
+});
+mcRecalcular(); // estado inicial: pide los participantes
+function mcAbrirRegistro(d) {
+  ptAbrirForm(d);
+  if (d.extra === "revancha") $("pt-rev").checked = true;
+  if (d.extra === "revanchita") $("pt-revt").checked = true;
+}
+$("mc-exportar").addEventListener("click", async () => {
+  const e = MC.esp, st = $("mc-status");
+  if (!e || !e.total || MC.exportando) return;
+  const desde = parseInt($("mc-desde").value.replace(/\D/g, ""), 10), max = Math.min(parseInt($("mc-max").value, 10) || 0, 2000000);
+  if (!(desde >= 1 && desde <= e.total)) { st.textContent = `Escribe un número de inicio entre 1 y ${e.total.toLocaleString("es-MX")}.`; return; }
+  if (!(max >= 1)) { st.textContent = "Escribe cuántas combinaciones quieres exportar."; return; }
+  MC.exportando = true; $("mc-exportar").disabled = true;
+  const partes = [["n", ...Array.from({ length: MC.R }, (_, i) => "pos" + (i + 1)), "suma", "reduce_a"].join(",") + "\n"];
+  let buf = "", n = desde - 1, hechos = 0;
+  try {
+    for (const combo of e.iterate(desde - 1)) {
+      if (hechos >= max) break;
+      const s = combo.reduce((x, y) => x + y, 0);
+      buf += `${++n},${combo.join(",")},${s},${raiz(s)}\n`;
+      if (++hechos % 5000 === 0) { partes.push(buf); buf = ""; st.textContent = `Generando… ${hechos.toLocaleString("es-MX")}`; await new Promise((r) => setTimeout(r, 0)); }
+    }
+    partes.push(buf);
+    await saveFile(`morfeo-${MC.g}-${MC.modo === "completo" ? "sorteo-completo" : "mis-participantes"}-${hechos}.csv`, new Blob(partes, { type: "text/csv" }), st, hechos);
+  } catch (err) { st.textContent = "No se pudo generar el archivo: " + (err && err.message ? err.message : err); }
+  MC.exportando = false; $("mc-exportar").disabled = false;
+});
 
 /* ---------- Tooltips de las gráficas ---------- */
 let FREQ = null, PREMIOS_TIP = [];
